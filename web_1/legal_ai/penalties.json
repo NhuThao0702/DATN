@@ -1,0 +1,990 @@
+{
+  "meta": {
+    "title": "Cơ sở dữ liệu xử phạt giao thông phục vụ đồ án",
+    "source": "Nghị định 168/2024/NĐ-CP",
+    "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+    "verified_on": "2026-08-12",
+    "record_count": 31,
+    "note": "Tập trung các lỗi phổ biến phục vụ nhận diện biển báo/chatbot. Nghị định 238/2026/NĐ-CP có hiệu lực 15/08/2026; các sửa đổi công bố tại Điều 6 liên quan thiết bị an toàn trẻ em và các quy định vận tải khác, không thay đổi các nhóm lỗi phổ biến trong tệp này."
+  },
+  "records": [
+    {
+      "id": "oto_di_nguoc_chieu",
+      "behavior_key": "di_nguoc_chieu",
+      "title": "Ô tô đi ngược chiều",
+      "aliases": [
+        "ô tô đi ngược chiều",
+        "xe hơi đi ngược chiều",
+        "xe con đi ngược chiều",
+        "ô tô đi lộn chiều",
+        "ô tô chạy ngược đường",
+        "đi ngược chiều đường một chiều",
+        "cấm đi ngược chiều",
+        "p.102",
+        "p102"
+      ],
+      "sign_codes": [
+        "P.102"
+      ],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Đi ngược chiều của đường một chiều hoặc đi ngược chiều trên đường có biển Cấm đi ngược chiều.",
+      "fine": "18.000.000 - 20.000.000 đồng",
+      "points": "Trừ 04 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm d khoản 9 và điểm b khoản 16 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 100
+    },
+    {
+      "id": "xe_may_di_nguoc_chieu",
+      "behavior_key": "di_nguoc_chieu",
+      "title": "Xe máy đi ngược chiều",
+      "aliases": [
+        "xe máy đi ngược chiều",
+        "mô tô đi ngược chiều",
+        "xe tay ga đi ngược chiều",
+        "xe máy đi lộn chiều",
+        "xe máy chạy ngược đường",
+        "cấm đi ngược chiều",
+        "p.102",
+        "p102"
+      ],
+      "sign_codes": [
+        "P.102"
+      ],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Đi ngược chiều của đường một chiều hoặc đi ngược chiều trên đường có biển Cấm đi ngược chiều.",
+      "fine": "4.000.000 - 6.000.000 đồng",
+      "points": "Trừ 02 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm a khoản 7 và điểm a khoản 13 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 100
+    },
+    {
+      "id": "oto_sai_lan",
+      "behavior_key": "sai_lan",
+      "title": "Ô tô đi sai phần đường hoặc làn đường",
+      "aliases": [
+        "ô tô đi sai làn",
+        "ô tô đi nhầm làn",
+        "xe hơi đi nhầm làn",
+        "ô tô lấn làn",
+        "ô tô không đúng làn",
+        "đi sai phần đường",
+        "đi không đúng làn đường",
+        "nhầm làn đường",
+        "sai làn"
+      ],
+      "sign_codes": [],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Đi không đúng phần đường hoặc làn đường quy định.",
+      "fine": "4.000.000 - 6.000.000 đồng",
+      "points": "Trừ 02 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm b khoản 5 và điểm a khoản 16 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 95
+    },
+    {
+      "id": "xe_may_sai_lan",
+      "behavior_key": "sai_lan",
+      "title": "Xe máy đi sai phần đường hoặc làn đường",
+      "aliases": [
+        "xe máy đi sai làn",
+        "xe máy đi nhầm làn",
+        "mô tô đi nhầm làn",
+        "xe máy lấn làn",
+        "xe máy không đúng làn",
+        "đi sai phần đường",
+        "đi không đúng làn đường",
+        "nhầm làn đường",
+        "sai làn"
+      ],
+      "sign_codes": [],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Đi không đúng phần đường hoặc làn đường quy định.",
+      "fine": "600.000 - 800.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm d khoản 3 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 95
+    },
+    {
+      "id": "oto_dung_bien_cam_dung_do",
+      "behavior_key": "cam_dung",
+      "title": "Ô tô dừng nơi có biển Cấm dừng xe và đỗ xe",
+      "aliases": [
+        "ô tô dừng nơi cấm",
+        "ô tô dừng chỗ cấm",
+        "dừng xe chỗ cấm",
+        "dừng xe nơi có biển cấm dừng",
+        "dừng xe biển cấm dừng đỗ",
+        "cấm dừng xe và đỗ xe",
+        "p.130",
+        "p130"
+      ],
+      "sign_codes": [
+        "P.130"
+      ],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Dừng xe nơi có biển Cấm dừng xe và đỗ xe.",
+      "fine": "600.000 - 800.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm đ khoản 2 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 90
+    },
+    {
+      "id": "oto_do_bien_cam",
+      "behavior_key": "cam_do",
+      "title": "Ô tô đỗ xe nơi có biển cấm đỗ",
+      "aliases": [
+        "ô tô đỗ nơi cấm",
+        "ô tô đậu nơi cấm",
+        "ô tô đậu chỗ cấm",
+        "đậu xe chỗ bị cấm",
+        "đỗ xe chỗ cấm",
+        "đỗ xe nơi có biển cấm đỗ",
+        "đỗ xe biển cấm dừng đỗ",
+        "cấm đỗ xe",
+        "p.131",
+        "p131"
+      ],
+      "sign_codes": [
+        "P.130",
+        "P.131a",
+        "P.131b",
+        "P.131c"
+      ],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Đỗ xe nơi có biển Cấm đỗ xe hoặc biển Cấm dừng xe và đỗ xe.",
+      "fine": "800.000 - 1.000.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm e khoản 3 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 90
+    },
+    {
+      "id": "xe_may_dung_do_bien_cam",
+      "behavior_key": "cam_dung_do",
+      "title": "Xe máy dừng, đỗ xe nơi có biển cấm",
+      "aliases": [
+        "xe máy dừng nơi cấm",
+        "xe máy đỗ nơi cấm",
+        "xe máy đậu nơi cấm",
+        "xe máy dừng chỗ cấm",
+        "xe máy đậu chỗ cấm",
+        "dừng xe nơi có biển cấm dừng",
+        "đỗ xe nơi có biển cấm đỗ",
+        "cấm dừng xe",
+        "cấm đỗ xe",
+        "p.130",
+        "p.131"
+      ],
+      "sign_codes": [
+        "P.130",
+        "P.131a",
+        "P.131b",
+        "P.131c"
+      ],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Dừng xe nơi có biển Cấm dừng xe và đỗ xe; hoặc đỗ xe nơi có biển Cấm đỗ xe/Cấm dừng xe và đỗ xe.",
+      "fine": "400.000 - 600.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm e khoản 2 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 90
+    },
+    {
+      "id": "oto_cam_re_quay_dau",
+      "behavior_key": "cam_re_quay_dau",
+      "title": "Ô tô rẽ hoặc quay đầu tại nơi có biển cấm",
+      "aliases": [
+        "ô tô cấm rẽ trái",
+        "ô tô rẽ trái nơi cấm",
+        "ô tô cấm rẽ phải",
+        "ô tô rẽ phải nơi cấm",
+        "ô tô quay đầu nơi cấm",
+        "ô tô quay đầu chỗ cấm",
+        "cấm rẽ trái",
+        "cấm rẽ phải",
+        "cấm quay đầu",
+        "u turn nơi cấm",
+        "p.123a",
+        "p.123b",
+        "p.124"
+      ],
+      "sign_codes": [
+        "P.123a",
+        "P.123b",
+        "P.124a1",
+        "P.124a2",
+        "P.124b1",
+        "P.124b2",
+        "P.124c",
+        "P.124d",
+        "P.124e"
+      ],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Quay đầu tại nơi có biển cấm quay đầu; hoặc rẽ trái/rẽ phải tại nơi có biển cấm tương ứng.",
+      "fine": "2.000.000 - 3.000.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm k khoản 4 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 95
+    },
+    {
+      "id": "xe_may_cam_re",
+      "behavior_key": "cam_re",
+      "title": "Xe máy rẽ trái hoặc rẽ phải tại nơi có biển cấm",
+      "aliases": [
+        "xe máy cấm rẽ trái",
+        "xe máy rẽ trái nơi cấm",
+        "xe máy cấm rẽ phải",
+        "xe máy rẽ phải nơi cấm",
+        "mô tô rẽ trái chỗ cấm",
+        "mô tô rẽ phải chỗ cấm",
+        "cấm rẽ trái",
+        "cấm rẽ phải",
+        "p.123a",
+        "p.123b"
+      ],
+      "sign_codes": [
+        "P.123a",
+        "P.123b"
+      ],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Rẽ trái hoặc rẽ phải tại nơi có biển báo cấm rẽ tương ứng.",
+      "fine": "600.000 - 800.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm a khoản 3 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 95
+    },
+    {
+      "id": "xe_may_cam_quay_dau",
+      "behavior_key": "cam_quay_dau",
+      "title": "Xe máy quay đầu tại nơi không được quay đầu",
+      "aliases": [
+        "xe máy quay đầu nơi cấm",
+        "xe máy quay đầu chỗ cấm",
+        "mô tô quay đầu nơi cấm",
+        "cấm quay đầu xe máy",
+        "quay đầu nơi không được quay đầu",
+        "u turn nơi cấm",
+        "p.124"
+      ],
+      "sign_codes": [
+        "P.124a1",
+        "P.124a2",
+        "P.124b1",
+        "P.124b2",
+        "P.124c",
+        "P.124d",
+        "P.124e"
+      ],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Quay đầu xe tại nơi không được quay đầu xe.",
+      "fine": "400.000 - 600.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm k khoản 2 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 95
+    },
+    {
+      "id": "oto_den_do",
+      "behavior_key": "den_do",
+      "title": "Ô tô không chấp hành đèn tín hiệu giao thông",
+      "aliases": [
+        "ô tô vượt đèn đỏ",
+        "ô tô chạy đèn đỏ",
+        "ô tô không chấp hành đèn đỏ",
+        "xe hơi vượt đèn đỏ",
+        "xe con vượt đèn đỏ",
+        "vượt đèn đỏ",
+        "chạy đèn đỏ",
+        "không chấp hành đèn tín hiệu",
+        "đèn đỏ"
+      ],
+      "sign_codes": [
+        "den_do"
+      ],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Không chấp hành hiệu lệnh của đèn tín hiệu giao thông.",
+      "fine": "18.000.000 - 20.000.000 đồng",
+      "points": "Trừ 04 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm b khoản 9 và điểm b khoản 16 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 100
+    },
+    {
+      "id": "xe_may_den_do",
+      "behavior_key": "den_do",
+      "title": "Xe máy không chấp hành đèn tín hiệu giao thông",
+      "aliases": [
+        "xe máy vượt đèn đỏ",
+        "xe máy chạy đèn đỏ",
+        "mô tô vượt đèn đỏ",
+        "xe tay ga vượt đèn đỏ",
+        "vượt đèn đỏ",
+        "chạy đèn đỏ",
+        "không chấp hành đèn tín hiệu",
+        "đèn đỏ"
+      ],
+      "sign_codes": [
+        "den_do"
+      ],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Không chấp hành hiệu lệnh của đèn tín hiệu giao thông.",
+      "fine": "4.000.000 - 6.000.000 đồng",
+      "points": "Trừ 04 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm c khoản 7 và điểm b khoản 13 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 100
+    },
+    {
+      "id": "oto_duong_cam",
+      "behavior_key": "duong_cam",
+      "title": "Ô tô đi vào đường/khu vực cấm đối với phương tiện",
+      "aliases": [
+        "ô tô đi vào đường cấm",
+        "ô tô vào khu vực cấm",
+        "xe hơi vào đường cấm",
+        "đi vào đường cấm ô tô",
+        "cấm ô tô",
+        "biển cấm ô tô",
+        "p.103a",
+        "xe tải vào đường cấm",
+        "cấm xe tải",
+        "p.106a",
+        "p.106b"
+      ],
+      "sign_codes": [
+        "P.103a",
+        "P.106a",
+        "P.106b"
+      ],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Đi vào khu vực cấm hoặc đường có biển báo cấm đi vào đối với loại phương tiện đang điều khiển.",
+      "fine": "4.000.000 - 6.000.000 đồng",
+      "points": "Trừ 02 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm i khoản 5 và điểm a khoản 16 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 90
+    },
+    {
+      "id": "xe_may_duong_cam",
+      "behavior_key": "duong_cam",
+      "title": "Xe máy đi vào đường/khu vực cấm đối với phương tiện",
+      "aliases": [
+        "xe máy đi vào đường cấm",
+        "xe máy vào khu vực cấm",
+        "mô tô vào đường cấm",
+        "đi vào đường cấm xe máy",
+        "cấm xe máy",
+        "biển cấm xe máy",
+        "p.111a"
+      ],
+      "sign_codes": [
+        "P.111a"
+      ],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Đi vào khu vực cấm hoặc đường có biển báo cấm đi vào đối với loại phương tiện đang điều khiển.",
+      "fine": "2.000.000 - 3.000.000 đồng",
+      "points": "Trừ 02 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm b khoản 6 và điểm a khoản 13 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 90
+    },
+    {
+      "id": "oto_toc_do_5_10",
+      "behavior_key": "qua_toc_do",
+      "title": "Ô tô chạy quá tốc độ từ 05 km/h đến dưới 10 km/h",
+      "aliases": [
+        "ô tô quá tốc độ",
+        "xe hơi chạy nhanh",
+        "ô tô vượt tốc độ",
+        "quá tốc độ",
+        "vượt tốc độ"
+      ],
+      "sign_codes": [
+        "P.127c"
+      ],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Chạy quá tốc độ quy định từ 05 km/h đến dưới 10 km/h.",
+      "fine": "800.000 - 1.000.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm a khoản 3 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 100,
+      "speed_over_min": 5,
+      "speed_over_max": 10,
+      "speed_min_inclusive": true,
+      "speed_max_inclusive": false
+    },
+    {
+      "id": "oto_toc_do_10_20",
+      "behavior_key": "qua_toc_do",
+      "title": "Ô tô chạy quá tốc độ từ 10 km/h đến 20 km/h",
+      "aliases": [
+        "ô tô quá tốc độ",
+        "xe hơi chạy nhanh",
+        "ô tô vượt tốc độ",
+        "quá tốc độ",
+        "vượt tốc độ"
+      ],
+      "sign_codes": [
+        "P.127c"
+      ],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Chạy quá tốc độ quy định từ 10 km/h đến 20 km/h.",
+      "fine": "4.000.000 - 6.000.000 đồng",
+      "points": "Trừ 02 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm đ khoản 5 và điểm a khoản 16 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 100,
+      "speed_over_min": 10,
+      "speed_over_max": 20,
+      "speed_min_inclusive": true,
+      "speed_max_inclusive": true
+    },
+    {
+      "id": "oto_toc_do_20_35",
+      "behavior_key": "qua_toc_do",
+      "title": "Ô tô chạy quá tốc độ trên 20 km/h đến 35 km/h",
+      "aliases": [
+        "ô tô quá tốc độ",
+        "xe hơi chạy nhanh",
+        "ô tô vượt tốc độ",
+        "quá tốc độ",
+        "vượt tốc độ"
+      ],
+      "sign_codes": [
+        "P.127c"
+      ],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Chạy quá tốc độ quy định trên 20 km/h đến 35 km/h.",
+      "fine": "6.000.000 - 8.000.000 đồng",
+      "points": "Trừ 04 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm a khoản 6 và điểm b khoản 16 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 100,
+      "speed_over_min": 20,
+      "speed_over_max": 35,
+      "speed_min_inclusive": false,
+      "speed_max_inclusive": true
+    },
+    {
+      "id": "oto_toc_do_tren_35",
+      "behavior_key": "qua_toc_do",
+      "title": "Ô tô chạy quá tốc độ trên 35 km/h",
+      "aliases": [
+        "ô tô quá tốc độ",
+        "xe hơi chạy nhanh",
+        "ô tô vượt tốc độ",
+        "quá tốc độ",
+        "vượt tốc độ"
+      ],
+      "sign_codes": [
+        "P.127c"
+      ],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Chạy quá tốc độ quy định trên 35 km/h.",
+      "fine": "12.000.000 - 14.000.000 đồng",
+      "points": "Trừ 06 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm a khoản 7 và điểm c khoản 16 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 100,
+      "speed_over_min": 35,
+      "speed_over_max": null,
+      "speed_min_inclusive": false,
+      "speed_max_inclusive": true
+    },
+    {
+      "id": "xe_may_toc_do_5_10",
+      "behavior_key": "qua_toc_do",
+      "title": "Xe máy chạy quá tốc độ từ 05 km/h đến dưới 10 km/h",
+      "aliases": [
+        "xe máy quá tốc độ",
+        "mô tô chạy nhanh",
+        "xe máy vượt tốc độ",
+        "quá tốc độ",
+        "vượt tốc độ"
+      ],
+      "sign_codes": [
+        "P.127c"
+      ],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Chạy quá tốc độ quy định từ 05 km/h đến dưới 10 km/h.",
+      "fine": "400.000 - 600.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm b khoản 2 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 100,
+      "speed_over_min": 5,
+      "speed_over_max": 10,
+      "speed_min_inclusive": true,
+      "speed_max_inclusive": false
+    },
+    {
+      "id": "xe_may_toc_do_10_20",
+      "behavior_key": "qua_toc_do",
+      "title": "Xe máy chạy quá tốc độ từ 10 km/h đến 20 km/h",
+      "aliases": [
+        "xe máy quá tốc độ",
+        "mô tô chạy nhanh",
+        "xe máy vượt tốc độ",
+        "quá tốc độ",
+        "vượt tốc độ"
+      ],
+      "sign_codes": [
+        "P.127c"
+      ],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Chạy quá tốc độ quy định từ 10 km/h đến 20 km/h.",
+      "fine": "800.000 - 1.000.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm a khoản 4 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 100,
+      "speed_over_min": 10,
+      "speed_over_max": 20,
+      "speed_min_inclusive": true,
+      "speed_max_inclusive": true
+    },
+    {
+      "id": "xe_may_toc_do_tren_20",
+      "behavior_key": "qua_toc_do",
+      "title": "Xe máy chạy quá tốc độ trên 20 km/h",
+      "aliases": [
+        "xe máy quá tốc độ",
+        "mô tô chạy nhanh",
+        "xe máy vượt tốc độ",
+        "quá tốc độ",
+        "vượt tốc độ"
+      ],
+      "sign_codes": [
+        "P.127c"
+      ],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Chạy quá tốc độ quy định trên 20 km/h.",
+      "fine": "6.000.000 - 8.000.000 đồng",
+      "points": "Trừ 04 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm a khoản 8 và điểm b khoản 13 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 100,
+      "speed_over_min": 20,
+      "speed_over_max": null,
+      "speed_min_inclusive": false,
+      "speed_max_inclusive": true
+    },
+    {
+      "id": "oto_cam_vuot",
+      "behavior_key": "cam_vuot",
+      "title": "Ô tô vượt tại nơi có biển cấm vượt",
+      "aliases": [
+        "ô tô vượt nơi cấm",
+        "ô tô vượt biển cấm vượt",
+        "cấm vượt",
+        "vượt xe nơi cấm",
+        "vượt tại đoạn cấm vượt"
+      ],
+      "sign_codes": [],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Vượt xe tại đoạn đường có biển báo cấm vượt đối với loại phương tiện đang điều khiển.",
+      "fine": "4.000.000 - 6.000.000 đồng",
+      "points": "Trừ 02 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm a khoản 5 và điểm a khoản 16 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 80
+    },
+    {
+      "id": "xe_may_cam_vuot",
+      "behavior_key": "cam_vuot",
+      "title": "Xe máy vượt tại nơi có biển cấm vượt",
+      "aliases": [
+        "xe máy vượt nơi cấm",
+        "mô tô vượt biển cấm vượt",
+        "cấm vượt",
+        "vượt xe nơi cấm",
+        "vượt tại đoạn cấm vượt"
+      ],
+      "sign_codes": [],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Vượt xe tại đoạn đường có biển báo cấm vượt đối với loại phương tiện đang điều khiển.",
+      "fine": "800.000 - 1.000.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm c khoản 4 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 80
+    },
+    {
+      "id": "oto_dung_dien_thoai",
+      "behavior_key": "dien_thoai",
+      "title": "Ô tô dùng tay cầm và sử dụng điện thoại khi xe đang di chuyển",
+      "aliases": [
+        "ô tô dùng điện thoại",
+        "lái ô tô bấm điện thoại",
+        "xe hơi dùng điện thoại",
+        "cầm điện thoại khi lái ô tô"
+      ],
+      "sign_codes": [],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Dùng tay cầm và sử dụng điện thoại hoặc thiết bị điện tử khác khi điều khiển phương tiện đang di chuyển.",
+      "fine": "4.000.000 - 6.000.000 đồng",
+      "points": "Trừ 04 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm h khoản 5 và điểm b khoản 16 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 70
+    },
+    {
+      "id": "xe_may_dung_dien_thoai",
+      "behavior_key": "dien_thoai",
+      "title": "Xe máy dùng tay cầm và sử dụng điện thoại khi đang điều khiển xe",
+      "aliases": [
+        "xe máy dùng điện thoại",
+        "mô tô bấm điện thoại",
+        "cầm điện thoại khi chạy xe máy",
+        "vừa chạy xe máy vừa dùng điện thoại"
+      ],
+      "sign_codes": [],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Dùng tay cầm và sử dụng điện thoại hoặc thiết bị điện tử khác khi đang điều khiển xe.",
+      "fine": "800.000 - 1.000.000 đồng",
+      "points": "Trừ 04 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm đ khoản 4 và điểm b khoản 13 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 70
+    },
+    {
+      "id": "xe_may_khong_mu_bao_hiem",
+      "behavior_key": "mu_bao_hiem",
+      "title": "Xe máy không đội mũ bảo hiểm hoặc cài quai không đúng quy cách",
+      "aliases": [
+        "không đội mũ bảo hiểm",
+        "xe máy không đội nón bảo hiểm",
+        "không cài quai mũ",
+        "mũ bảo hiểm không cài quai"
+      ],
+      "sign_codes": [],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Không đội mũ bảo hiểm cho người đi mô tô, xe máy hoặc đội mũ nhưng không cài quai đúng quy cách.",
+      "fine": "400.000 - 600.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm h khoản 2 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 65
+    },
+    {
+      "id": "oto_dung_do_cao_toc",
+      "behavior_key": "dung_do_cao_toc",
+      "title": "Ô tô dừng, đỗ trên đường cao tốc không đúng quy định",
+      "aliases": [
+        "ô tô dừng cao tốc",
+        "ô tô đỗ cao tốc",
+        "đậu xe trên cao tốc",
+        "dừng xe cao tốc sai quy định"
+      ],
+      "sign_codes": [],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Dừng xe, đỗ xe trên đường cao tốc không đúng nơi quy định hoặc không thực hiện cảnh báo theo quy định khi buộc phải dừng.",
+      "fine": "12.000.000 - 14.000.000 đồng",
+      "points": "Trừ 06 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm c khoản 7 và điểm c khoản 16 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 70
+    },
+    {
+      "id": "xe_may_vao_cao_toc",
+      "behavior_key": "vao_cao_toc",
+      "title": "Xe máy đi vào đường cao tốc",
+      "aliases": [
+        "xe máy vào cao tốc",
+        "mô tô đi cao tốc",
+        "xe máy chạy lên cao tốc",
+        "xe máy đi đường cao tốc"
+      ],
+      "sign_codes": [],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Điều khiển xe máy đi vào đường cao tốc, trừ xe phục vụ quản lý, bảo trì đường cao tốc.",
+      "fine": "4.000.000 - 6.000.000 đồng",
+      "points": "Trừ 06 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm b khoản 7 và điểm c khoản 13 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 70
+    },
+    {
+      "id": "oto_quay_dau_cao_toc",
+      "behavior_key": "quay_dau_cao_toc",
+      "title": "Ô tô quay đầu trên đường cao tốc",
+      "aliases": [
+        "ô tô quay đầu cao tốc",
+        "quay đầu xe trên cao tốc",
+        "u turn trên cao tốc",
+        "ô tô u turn cao tốc"
+      ],
+      "sign_codes": [],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Quay đầu xe trên đường cao tốc, trừ xe ưu tiên đang làm nhiệm vụ khẩn cấp theo quy định.",
+      "fine": "30.000.000 - 40.000.000 đồng",
+      "points": "Trừ 10 điểm GPLX",
+      "additional_penalty": "Không có hình phạt bổ sung riêng trong trường hợp thông thường.",
+      "legal_basis": "Điểm đ khoản 11 và điểm d khoản 16 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 75
+    },
+    {
+      "id": "oto_bien_bao_chung",
+      "behavior_key": "bien_bao_chung",
+      "title": "Ô tô không chấp hành biển báo/vạch kẻ đường (không có mức riêng)",
+      "aliases": [
+        "ô tô không chấp hành biển báo",
+        "ô tô vi phạm biển báo",
+        "không nghe biển báo",
+        "không tuân theo biển báo"
+      ],
+      "sign_codes": [],
+      "vehicle_types": [
+        "oto",
+        "xe_tai",
+        "xe_khach"
+      ],
+      "behavior": "Không chấp hành hiệu lệnh, chỉ dẫn của biển báo hiệu hoặc vạch kẻ đường khi hành vi đó không thuộc trường hợp có mức xử phạt riêng.",
+      "fine": "400.000 - 600.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Chỉ dùng mức này khi hành vi không thuộc một điểm/khoản có mức phạt riêng.",
+      "legal_basis": "Điểm a khoản 1 Điều 6 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 10
+    },
+    {
+      "id": "xe_may_bien_bao_chung",
+      "behavior_key": "bien_bao_chung",
+      "title": "Xe máy không chấp hành biển báo/vạch kẻ đường (không có mức riêng)",
+      "aliases": [
+        "xe máy không chấp hành biển báo",
+        "xe máy vi phạm biển báo",
+        "không nghe biển báo",
+        "không tuân theo biển báo"
+      ],
+      "sign_codes": [],
+      "vehicle_types": [
+        "xe_may"
+      ],
+      "behavior": "Không chấp hành hiệu lệnh, chỉ dẫn của biển báo hiệu hoặc vạch kẻ đường khi hành vi đó không thuộc trường hợp có mức xử phạt riêng.",
+      "fine": "200.000 - 400.000 đồng",
+      "points": "Không bị trừ điểm GPLX trong trường hợp thông thường.",
+      "additional_penalty": "Chỉ dùng mức này khi hành vi không thuộc một điểm/khoản có mức phạt riêng.",
+      "legal_basis": "Điểm a khoản 1 Điều 7 Nghị định 168/2024/NĐ-CP",
+      "source_title": "Nghị định 168/2024/NĐ-CP",
+      "source_url": "https://xaydungchinhsach.chinhphu.vn/toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm",
+      "effective_from": "2025-01-01",
+      "effective_to": null,
+      "priority": 10
+    }
+  ]
+}
