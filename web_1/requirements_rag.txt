@@ -1,0 +1,12 @@
+# Cài bổ sung vào .venv hiện tại của D:\DATN\web_1
+# Không dùng requirements hơn 200 dòng của project cũ vì dễ xung đột YOLO/Torch.
+chromadb>=1.4,<2
+langchain-chroma>=1.1,<2
+langchain-community>=0.4,<0.5
+langchain-core>=1.3,<2
+langchain-openai>=1.1,<2
+langchain-text-splitters>=1.1,<2
+onnxruntime>=1.23,<2
+PyMuPDF>=1.24,<2
+sentencepiece>=0.2,<1
+transformers>=4.57,<5
