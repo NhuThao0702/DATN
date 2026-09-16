@@ -1,0 +1,2532 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trợ lý ảo nhận diện biển báo giao thông</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="topbar">
+        <div class="brand">
+            <h1><i class="fa-solid fa-traffic-light"></i> Trợ lý ảo nhận diện biển báo giao thông</h1>
+        </div>
+        <div>
+            Xin chào, <strong>{{ current_user.username }}</strong>
+            <a class="logout" href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('camera', this)"><i class="fa-solid fa-camera"></i> Camera / Ảnh</button>
+            <button class="tab-btn" onclick="switchTab('video', this)"><i class="fa-solid fa-film"></i> Video hành trình</button>
+            <button class="tab-btn" onclick="switchTab('lookup', this)"><i class="fa-solid fa-magnifying-glass"></i> Tra cứu biển báo</button>
+        </div>
+
+        <section id="panel-camera" class="panel active">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="camera-wrap">
+                        <div id="camera-placeholder" class="placeholder">
+                            <i class="fa-solid fa-video-slash"></i>
+                            <div>Camera đang tắt hoặc chưa tải ảnh</div>
+                        </div>
+                        <div id="live-indicator" class="live">LIVE</div>
+                        <video id="video" autoplay playsinline muted></video>
+                        <img id="upload-preview" alt="Ảnh tải lên">
+                        <canvas id="overlay" width="640" height="480"></canvas>
+                        <canvas id="hidden-canvas" width="640" height="480" style="display:none;"></canvas>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-box">
+                            <label>Loại phương tiện</label>
+                            <select id="vehicle-type" aria-label="Loại phương tiện">
+                                <option value="all">Tất cả phương tiện</option>
+                                <option value="xe_may">Xe máy</option>
+                                <option value="oto">Ô tô</option>
+                                <option value="xe_tai">Xe tải</option>
+                                <option value="xe_khach">Xe khách</option>
+                                
+                            </select>
+                        </div>
+                        <div class="setting-box">
+                            <label>Ngưỡng tin cậy: <span id="conf-val">0.45</span></label>
+                            <input type="range" id="conf-slider" aria-label="Ngưỡng tin cậy camera và ảnh" min="0.1" max="0.9" step="0.05" value="0.45" oninput="document.getElementById('conf-val').innerText=this.value">
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button class="primary" onclick="startCamera()"><i class="fa-solid fa-play"></i> Bật camera</button>
+                        <button class="danger" onclick="stopCamera()"><i class="fa-solid fa-stop"></i> Tắt camera</button>
+                        <button class="gray" onclick="switchCamera()"><i class="fa-solid fa-rotate"></i> Đổi camera</button>
+                        <button id="voice-btn" class="orange" onclick="toggleVoice()"><i class="fa-solid fa-volume-high"></i> Âm thanh</button>
+                    </div>
+
+                    <div class="extra-controls">
+                        <input type="file" id="file-upload" accept="image/*" style="display:none" onchange="handleFileUpload(event)">
+                        <button class="green" onclick="document.getElementById('file-upload').click()"><i class="fa-solid fa-upload"></i> Tải ảnh lên</button>
+                        <button class="gray" onclick="clearOverlayAndResult()"><i class="fa-solid fa-eraser"></i> Xóa khung</button>
+                    </div>
+                </div>
+
+                <aside class="card">
+                    <div class="result-title">
+                        <h3>Kết quả hiện tại</h3>
+                        <span id="count-badge" class="badge">0 biển</span>
+                    </div>
+                    <div id="current-result">Đang chờ nhận diện...</div>
+                    <div id="detections-list" class="detections-list"></div>
+
+                    <div class="result-title" style="margin-top:18px;">
+                        <h3>Lịch sử cảnh báo</h3>
+                        <button class="gray" onclick="clearHistory('history-log')"><i class="fa-solid fa-trash"></i> Xóa</button>
+                    </div>
+                    <div id="history-log" class="history-box"></div>
+                </aside>
+            </div>
+        </section>
+
+        <section id="panel-video" class="panel">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="drop" onclick="document.getElementById('video-file-input').click()">
+                        <i class="fa-solid fa-cloud-arrow-up" style="font-size:34px;"></i>
+                        <h3>Chọn video hành trình</h3>
+                        <p class="note">Video sẽ phát trên trình duyệt, hệ thống gửi từng frame về Flask để YOLOv8 nhận diện.</p>
+                    </div>
+                    <input type="file" id="video-file-input" accept="video/*" style="display:none" onchange="onVideoFileSelected(event)">
+
+                    <div class="setting-row">
+                        <div class="setting-box">
+                            <label>Loại phương tiện cho video</label>
+                            <select id="video-vehicle-type" aria-label="Loại phương tiện cho video">
+                                <option value="all">Tất cả phương tiện</option>
+                                <option value="xe_may">Xe máy</option>
+                                <option value="oto">Ô tô</option>
+                                <option value="xe_tai">Xe tải</option>
+                                <option value="xe_khach">Xe khách</option>
+                    
+                            </select>
+                        </div>
+                        <div class="setting-box">
+                            <label>Ngưỡng tin cậy video: <span id="video-conf-val">0.45</span></label>
+                            <input type="range" id="video-conf-slider" aria-label="Ngưỡng tin cậy video" min="0.1" max="0.9" step="0.05" value="0.45" oninput="document.getElementById('video-conf-val').innerText=this.value">
+                        </div>
+
+                        <div class="setting-box">
+                            <label>Giới hạn AI phân tích video</label>
+                            <input type="number" id="video-max-sec" aria-label="Giới hạn thời gian phân tích video" min="10" max="900" step="10" value="180">
+                            <div class="note">Mặc định 180 giây. Video dài hơn sẽ tự tạm dừng AI.</div>
+                        </div>
+                    </div>
+
+                    <div id="selected-file-info" class="note" style="display:none; margin-bottom:10px;"></div>
+
+                    <div class="video-wrap">
+                        <div id="video-placeholder" class="placeholder">
+                            <i class="fa-solid fa-film"></i>
+                            <div>Chưa chọn video</div>
+                        </div>
+                        <video id="result-video" controls muted playsinline></video>
+                        <canvas id="video-overlay"></canvas>
+                    </div>
+
+                    <div class="controls">
+                        <button class="primary" onclick="playVideoWithAI()">
+                            <i class="fa-solid fa-play"></i> Phát video
+                        </button>
+
+                        <button class="gray" onclick="pauseVideoAI()">
+                            <i class="fa-solid fa-pause"></i> Tạm dừng
+                        </button>
+
+                        <button class="danger" onclick="stopVideoAI()">
+                            <i class="fa-solid fa-stop"></i> Dừng video
+                        </button>
+
+                        <button id="btn-mute-original-video" class="gray" onclick="toggleOriginalVideoSound()">
+                            <i class="fa-solid fa-volume-xmark"></i> Video gốc: Tắt tiếng
+                        </button>
+
+                        <button id="btn-voice-video" class="orange" onclick="toggleVideoVoice()">
+                            <i class="fa-solid fa-volume-high"></i> Âm thanh AI
+                        </button>
+                    </div>
+                </div>
+
+                <aside class="card">
+                    <div class="result-title">
+                        <h3>AI đang phát hiện</h3>
+                        <span id="video-count-badge" class="badge">0 biển</span>
+                    </div>
+                    <div id="video-current-result">Chờ video phát...</div>
+                    <div id="video-detections-list" class="detections-list"></div>
+
+                    <div class="result-title" style="margin-top:18px;">
+                        <h3>Timeline nhận diện</h3>
+                        <button class="gray" onclick="clearHistory('video-timeline-log')"><i class="fa-solid fa-trash"></i> Xóa</button>
+                    </div>
+                    <div id="video-timeline-log" class="history-box"></div>
+                </aside>
+            </div>
+        </section>
+
+        <section id="panel-lookup" class="panel">
+            <div class="lookup-grid">
+                <div class="card lookup-search-card">
+                    <div class="result-title">
+                        <h3><i class="fa-solid fa-magnifying-glass"></i> Tra cứu biển báo</h3>
+                        <span id="lookup-count-badge" class="badge">0 kết quả</span>
+                    </div>
+
+                    <div class="search-row">
+                        <input
+                            type="text"
+                            id="lookup-query"
+                            placeholder="Nhập mã hoặc tên biển báo: P.130, cấm xe máy, tốc độ, đèn đỏ..."
+                            onkeydown="if(event.key === 'Enter') searchSigns()"
+                        >
+
+                        <select id="lookup-group" aria-label="Nhóm biển báo">
+                            <option value="all">Tất cả nhóm</option>
+                            <option value="Biển cấm">Biển cấm</option>
+                            <option value="Biển cảnh báo">Biển cảnh báo</option>
+                            <option value="Biển hiệu lệnh">Biển hiệu lệnh</option>
+                            <option value="Biển chỉ dẫn">Biển chỉ dẫn</option>
+                            <option value="Biển phụ">Biển phụ</option>
+                            <option value="Đèn giao thông">Đèn giao thông</option>
+                        </select>
+
+                        <select id="lookup-vehicle-type" aria-label="Loại phương tiện tra cứu" onchange="searchSigns()">
+                            <option value="all">Không lọc phương tiện</option>
+                            <option value="xe_may">Xe máy</option>
+                            <option value="oto">Ô tô</option>
+                            <option value="xe_tai">Xe tải</option>
+                            <option value="xe_khach">Xe khách</option>
+                            <option value="xe_dap">Xe đạp</option>
+                        </select>
+
+                        <button class="primary" onclick="searchSigns()">
+                            <i class="fa-solid fa-search"></i> Tìm
+                        </button>
+                    </div>
+
+                    <p class="note">
+                        Có thể nhập từ khóa như: “cấm xe máy”, “cấm rẽ trái”, “P.130”, “tốc độ”, “đèn đỏ”, “đường giao nhau”.
+                    </p>
+
+                    <div class="controls">
+                        <input
+                            type="file"
+                            id="lookup-image-input"
+                            accept="image/*"
+                            capture="environment"
+                            style="display:none"
+                            onchange="lookupByImage(event)"
+                        >
+
+                        <button class="green" onclick="document.getElementById('lookup-image-input').click()">
+                            <i class="fa-solid fa-camera"></i> Tải ảnh / chụp ảnh để tra cứu
+                        </button>
+
+                        <button class="gray" onclick="clearLookupImage()">
+                            <i class="fa-solid fa-eraser"></i> Xóa ảnh
+                        </button>
+                    </div>
+
+                    <img id="lookup-image-preview" class="lookup-image-preview" alt="Ảnh tra cứu">
+                    <canvas id="lookup-hidden-canvas" width="640" height="480" style="display:none;"></canvas>
+
+                    <div class="result-title" style="margin-top:18px;">
+                        <h3>Kết quả tìm kiếm</h3>
+                    </div>
+
+                    <div id="lookup-results" class="detections-list">
+                        <div class="note">Nhấn “Tìm” để xem danh sách biển báo.</div>
+                    </div>
+                </div>
+
+                <aside class="card lookup-detail-card">
+                    <div class="result-title">
+                        <h3><i class="fa-solid fa-circle-info"></i> Chi tiết biển báo</h3>
+                        <button class="orange" onclick="speakLookupDetail()">
+                            <i class="fa-solid fa-volume-high"></i> Đọc cảnh báo
+                        </button>
+                    </div>
+
+                    <div id="lookup-current-result">
+                        Chọn một biển báo trong danh sách hoặc tải ảnh/chụp ảnh để tra cứu.
+                    </div>
+
+                    <div id="lookup-detail" class="sign-detail-box" style="margin-top:12px;">
+                        <div class="note">
+                            Thông tin chi tiết sẽ hiển thị tại đây: mã biển, tên biển, nhóm biển, ý nghĩa, phương tiện áp dụng, hành vi được phép/bị cấm và câu cảnh báo.
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="card lookup-chat-full">
+                    <div class="chatbot-box chatbot-modern">
+                                            <div class="result-title chatbot-header">
+                                                <div class="chatbot-title-group">
+                                                    <div class="chatbot-header-icon">
+                                                        <i class="fa-solid fa-robot"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h3>Trợ lý AI giao thông</h3>
+                                                        <p>Giải thích biển báo và tra cứu pháp luật từ dữ liệu RAG local</p>
+                                                    </div>
+                                                </div>
+                                                <span id="chatbot-status" class="badge rag-status loading">
+                                                    RAG đang khởi động
+                                                </span>
+                                            </div>
+
+                                            <div class="chat-context-note">
+                                                <i class="fa-solid fa-circle-info"></i>
+                                                Khi bạn chọn một biển báo, trợ lý sẽ tự dùng biển đó làm ngữ cảnh trả lời.
+                                            </div>
+
+                                            <div id="chat-messages" class="chat-messages">
+                                                <div class="chat-message bot welcome-message chat-message-enter">
+                                                    <div class="chat-avatar-wrap">
+                                                        <div class="chat-avatar">
+                                                            <i class="fa-solid fa-robot"></i>
+                                                        </div>
+                                                        <span class="chat-avatar-label">AI</span>
+                                                    </div>
+
+                                                    <div class="chat-message-content">
+                                                        <div class="chat-bubble chat-welcome-bubble">
+                                                            <div class="welcome-title">Xin chào 👋</div>
+
+                                                            <p>
+                                                                Mình là trợ lý AI về biển báo và pháp luật an toàn giao thông.
+                                                            </p>
+
+                                                            <p class="welcome-question-title">Bạn có thể hỏi:</p>
+
+                                                            <ul class="welcome-question-list">
+                                                                <li>Biển báo này có ý nghĩa gì?</li>
+                                                                <li>Vi phạm bị phạt bao nhiêu?</li>
+                                                                <li>Có bị trừ điểm giấy phép lái xe không?</li>
+                                                                <li>Xe máy hoặc ô tô có được đi vào không?</li>
+                                                                <li>Căn cứ tại điều, khoản nào?</li>
+                                                            </ul>
+
+                                                            <p class="welcome-footer">
+                                                                Mình sẽ trả lời dựa trên cơ sở tri thức biển báo
+                                                                và văn bản pháp luật đã đưa vào hệ thống.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="quick-questions">
+                                                <button
+                                                    class="chip"
+                                                    onclick="askQuickQuestion('Vi phạm biển này bị phạt bao nhiêu?')"
+                                                    title="Tra cứu mức phạt"
+                                                >
+                                                    <span class="chip-icon">💰</span>
+                                                    <span>Mức phạt</span>
+                                                </button>
+
+                                                <button
+                                                    class="chip"
+                                                    onclick="askQuickQuestion('Hãy giải thích ý nghĩa của biển này.')"
+                                                    title="Giải thích biển báo"
+                                                >
+                                                    <span class="chip-icon">📖</span>
+                                                    <span>Giải thích biển</span>
+                                                </button>
+
+                                                <button
+                                                    class="chip"
+                                                    onclick="askQuickQuestion('Biển này có áp dụng cho xe máy không?')"
+                                                    title="Kiểm tra áp dụng cho xe máy"
+                                                >
+                                                    <span class="chip-icon">🏍️</span>
+                                                    <span>Xe máy áp dụng?</span>
+                                                </button>
+
+                                                <button
+                                                    class="chip"
+                                                    onclick="askQuickQuestion('Biển này có áp dụng cho ô tô không?')"
+                                                    title="Kiểm tra áp dụng cho ô tô"
+                                                >
+                                                    <span class="chip-icon">🚗</span>
+                                                    <span>Ô tô áp dụng?</span>
+                                                </button>
+
+                                                <button
+                                                    class="chip"
+                                                    onclick="askQuickQuestion('Mức phạt này căn cứ điều, khoản, điểm nào?')"
+                                                    title="Tra cứu căn cứ pháp lý"
+                                                >
+                                                    <span class="chip-icon">📜</span>
+                                                    <span>Trích luật</span>
+                                                </button>
+                                            </div>
+
+                                            <div class="chat-input-row">
+                                                <input
+                                                    type="text"
+                                                    id="chat-input"
+                                                    placeholder="Hỏi về biển báo, mức phạt hoặc căn cứ pháp lý..."
+                                                    aria-label="Nhập câu hỏi cho trợ lý AI"
+                                                    autocomplete="off"
+                                                    onkeydown="if(event.key === 'Enter') sendChatMessage()"
+                                                >
+                                                <button
+                                                    id="chat-send-btn"
+                                                    class="primary chat-send-button"
+                                                    onclick="sendChatMessage()"
+                                                    aria-label="Gửi câu hỏi"
+                                                >
+                                                    <i class="fa-solid fa-paper-plane"></i>
+                                                    <span>Gửi</span>
+                                                </button>
+                                            </div>
+
+                                            <p class="note chatbot-note">
+                                                <i class="fa-solid fa-shield-halved"></i>
+                                                Thông tin xử phạt mang tính tham khảo phục vụ đồ án;
+                                                cần đối chiếu văn bản pháp luật hiện hành khi áp dụng thực tế.
+                                            </p>
+                                        </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+<script>
+const video = document.getElementById("video");
+const overlay = document.getElementById("overlay");
+const ctxOverlay = overlay.getContext("2d");
+const hiddenCanvas = document.getElementById("hidden-canvas");
+const ctxHidden = hiddenCanvas.getContext("2d");
+const cameraPlaceholder = document.getElementById("camera-placeholder");
+const liveIndicator = document.getElementById("live-indicator");
+const uploadPreview = document.getElementById("upload-preview");
+
+// Phần vẽ box bên dưới dùng cùng quy tắc contain cho cả camera và ảnh tải lên.
+video.style.objectFit = "contain";
+uploadPreview.style.objectFit = "contain";
+
+const confVal = document.getElementById("conf-val");
+const videoConfVal = document.getElementById("video-conf-val");
+
+let stream = null;
+let camLoopActive = false;
+let useFrontCamera = false;
+let isProcessingCam = false;
+let globalVoiceEnabled = true;
+let announcedSigns = {};
+let signBuffer = {};
+let cameraVoteHistory = [];
+const CAMERA_VOTE_WINDOW = 3;
+const CAMERA_IMMEDIATE_CONF = 0.82;
+const CAMERA_STABLE_CONF = 0.45;
+const CAMERA_SPEAK_COOLDOWN_SEC = 5;
+
+// TTS realtime: ưu tiên cảnh báo ngắn, đọc nhanh và không để câu cũ nằm trong hàng đợi.
+const REALTIME_TTS_RATE = 1.38;
+const REALTIME_TTS_MAX_ITEMS = 3;
+
+function switchTab(name, btn) {
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById("panel-" + name).classList.add("active");
+    btn.classList.add("active");
+
+    if (name === "lookup") {
+        searchSigns();
+        checkChatbotStatus();
+    }
+}
+
+function toggleVoice() {
+    globalVoiceEnabled = !globalVoiceEnabled;
+    const btn = document.getElementById("voice-btn");
+    btn.innerHTML = globalVoiceEnabled
+        ? '<i class="fa-solid fa-volume-high"></i> Âm thanh'
+        : '<i class="fa-solid fa-volume-xmark"></i> Tắt âm';
+    if (!globalVoiceEnabled) speechSynthesis.cancel();
+}
+
+function toggleVideoVoice() {
+    globalVoiceEnabled = !globalVoiceEnabled;
+    const btn = document.getElementById("btn-voice-video");
+    btn.innerHTML = globalVoiceEnabled
+        ? '<i class="fa-solid fa-volume-high"></i> Âm thanh AI'
+        : '<i class="fa-solid fa-volume-xmark"></i> Tắt âm';
+    if (!globalVoiceEnabled) speechSynthesis.cancel();
+}
+
+function speakAI(text, urgent = false) {
+    if (!globalVoiceEnabled || !text) return;
+
+    const cleanText = cleanRealtimeSpeechText(text);
+    if (!cleanText) return;
+
+    if (urgent) {
+        // Xóa câu cũ ngay khi có cảnh báo mới để không đọc trễ sau khi xe đã đi qua.
+        speechSynthesis.cancel();
+    }
+
+    const msg = new SpeechSynthesisUtterance(cleanText);
+    msg.lang = "vi-VN";
+    msg.rate = REALTIME_TTS_RATE;
+    msg.pitch = 1.0;
+    msg.volume = 1.0;
+
+    // Chrome/Android/Windows đôi khi cần một nhịp rất ngắn sau cancel().
+    if (urgent) {
+        setTimeout(() => {
+            if (globalVoiceEnabled) speechSynthesis.speak(msg);
+        }, 20);
+    } else {
+        speechSynthesis.speak(msg);
+    }
+}
+
+function cleanRealtimeSpeechText(text) {
+    return String(text || "")
+        .replace(/phía trước\s+ở phía trước/gi, "phía trước")
+        .replace(/phía trước\s+phía trước/gi, "phía trước")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/[.。]+$/g, "");
+}
+
+function realtimeSpeechPriority(det) {
+    const code = String(det?.code || det?.label || "").trim();
+    if (code === "den_do") return 0;
+    if (code === "den_vang") return 1;
+    if (code.startsWith("P.")) return 2;
+    if (code.startsWith("bp_") || code === "cam_xe_hai_banh_re_trai") return 3;
+    if (code.startsWith("R.")) return 4;
+    if (code.startsWith("W.")) return 5;
+    if (code.startsWith("I.")) return 6;
+    if (code.startsWith("S.")) return 7;
+    if (code === "bien_phu_chu") return 8;
+    if (code === "den_xanh") return 9;
+    return 99;
+}
+
+function realtimeSpeechText(det) {
+    const code = String(det?.code || "").trim();
+
+    // Một vài câu realtime rút gọn để loa kịp cảnh báo khi xe đang di chuyển.
+    const shortText = {
+        "den_do": "Đèn đỏ, dừng xe",
+        "den_vang": "Đèn vàng, giảm tốc",
+        "den_xanh": "Đèn xanh, chú ý an toàn",
+        "P.130": "Cấm dừng và đỗ xe",
+        "W.205a": "Chú ý đường giao nhau",
+        "W.205b": "Chú ý đường giao nhau",
+        "W.205c": "Chú ý đường giao nhau",
+        "W.205d": "Chú ý đường giao nhau",
+        "W.205e": "Chú ý đường giao nhau",
+        "W.209": "Chú ý giao nhau có đèn",
+        "W.224": "Chú ý người đi bộ",
+        "W.225": "Chú ý trẻ em",
+        "W.227": "Chú ý công trường"
+    };
+
+    if (shortText[code]) return shortText[code];
+
+    const warning = cleanRealtimeSpeechText(det?.warning || "");
+    if (warning) return warning;
+
+    return cleanRealtimeSpeechText(det?.name || det?.label || det?.code || "Biển báo");
+}
+
+function buildRealtimeSpeechText(detections, maxItems = REALTIME_TTS_MAX_ITEMS) {
+    const sorted = (detections || [])
+        .slice()
+        .sort((a, b) => {
+            const p = realtimeSpeechPriority(a) - realtimeSpeechPriority(b);
+            if (p !== 0) return p;
+            return videoBoxApproachScore(b) - videoBoxApproachScore(a);
+        });
+
+    const seen = new Set();
+    const parts = [];
+
+    for (const det of sorted) {
+        const part = realtimeSpeechText(det);
+        if (!part || seen.has(part)) continue;
+        seen.add(part);
+        parts.push(part);
+        if (parts.length >= maxItems) break;
+    }
+
+    return parts.length ? parts.join(". ") + "." : "";
+}
+
+function clearHistory(id) {
+    document.getElementById(id).innerHTML = "";
+}
+
+function addToHistory(text, targetId, prefix = "") {
+    const box = document.getElementById(targetId);
+    const item = document.createElement("div");
+    item.className = "history-item";
+    const time = new Date().toLocaleTimeString();
+    item.innerHTML = `<strong>${prefix || time}</strong><br>${escapeHTML(text)}`;
+    box.prepend(item);
+}
+
+function escapeHTML(str) {
+    return String(str || "").replace(/[&<>"']/g, s => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    }[s]));
+}
+
+function roundedRectPath(ctx, x, y, w, h, r) {
+    const radius = Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+}
+
+function drawCornerBox(ctx, x1, y1, x2, y2, color) {
+    const w = x2 - x1;
+    const h = y2 - y1;
+    const len = Math.max(14, Math.min(w, h) * 0.25);
+
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+
+    ctx.beginPath();
+    // Góc trái trên
+    ctx.moveTo(x1, y1 + len); ctx.lineTo(x1, y1); ctx.lineTo(x1 + len, y1);
+    // Góc phải trên
+    ctx.moveTo(x2 - len, y1); ctx.lineTo(x2, y1); ctx.lineTo(x2, y1 + len);
+    // Góc phải dưới
+    ctx.moveTo(x2, y2 - len); ctx.lineTo(x2, y2); ctx.lineTo(x2 - len, y2);
+    // Góc trái dưới
+    ctx.moveTo(x1 + len, y2); ctx.lineTo(x1, y2); ctx.lineTo(x1, y2 - len);
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawDetectionLabel(ctx, x1, y1, x2, y2, text, conf, color) {
+    const confPercent = Number.isFinite(Number(conf)) ? `${Math.round(Number(conf) * 100)}%` : "";
+    const label = confPercent ? `${text} ${confPercent}` : text;
+
+    ctx.save();
+    ctx.font = "bold 13px Inter, Arial, sans-serif";
+    const paddingX = 9;
+    const labelH = 26;
+    const textW = ctx.measureText(label).width;
+    const labelW = Math.min(textW + paddingX * 2, ctx.canvas.width - 12);
+
+    let lx = x1;
+    if (lx + labelW > ctx.canvas.width - 6) lx = ctx.canvas.width - labelW - 6;
+    if (lx < 6) lx = 6;
+
+    // Ưu tiên đặt chữ dưới biển báo. Nếu sát đáy thì đưa lên trên.
+    let ly = y2 + 7;
+    if (ly + labelH > ctx.canvas.height - 6) {
+        ly = y1 - labelH - 7;
+    }
+    if (ly < 6) ly = Math.max(6, y1 + 6);
+
+    ctx.fillStyle = "rgba(2, 6, 23, 0.86)";
+    roundedRectPath(ctx, lx, ly, labelW, labelH, 8);
+    ctx.fill();
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    roundedRectPath(ctx, lx, ly, labelW, labelH, 8);
+    ctx.stroke();
+
+    ctx.fillStyle = color;
+    ctx.fillText(label, lx + paddingX, ly + 18);
+    ctx.restore();
+}
+
+function drawDetections(ctx, detections, scaleX = 1, scaleY = 1, offsetX = 0, offsetY = 0) {
+    detections.forEach(d => {
+        if (!d.box || d.box.length < 4) return;
+
+        const [x1raw, y1raw, x2raw, y2raw] = d.box;
+        const x1 = x1raw * scaleX + offsetX;
+        const y1 = y1raw * scaleY + offsetY;
+        const x2 = x2raw * scaleX + offsetX;
+        const y2 = y2raw * scaleY + offsetY;
+
+        if (x2 <= x1 || y2 <= y1) return;
+
+        const text = String(d.code || d.label || d.name || "Biển báo").trim();
+        const color = d.group && String(d.group).toLowerCase().includes("cấm") ? "#ff4d4f" : "#00ff88";
+
+        ctx.save();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = color;
+        roundedRectPath(ctx, x1, y1, x2 - x1, y2 - y1, 10);
+        ctx.stroke();
+        ctx.restore();
+
+        // Vẽ 4 góc nổi bật như demo tham khảo, nhìn gọn hơn khung chữ nhật thường.
+        drawCornerBox(ctx, x1, y1, x2, y2, color);
+
+        // Đưa chữ xuống dưới biển để không che biển báo.
+        drawDetectionLabel(ctx, x1, y1, x2, y2, text, d.conf, color);
+    });
+}
+
+/*
+ * Chuẩn hóa ảnh đầu vào và tọa độ box.
+ *
+ * Bản cũ kéo mọi ảnh (kể cả ảnh dọc) thành 640x480 trước khi gửi YOLO,
+ * trong khi thẻ <img>/<video> lại hiển thị theo object-fit: contain. Vì vậy
+ * tọa độ đúng trên ảnh bị kéo giãn nhưng lệch khi vẽ lên hai dải đen + ảnh thật.
+ * Hai hàm dưới giữ nguyên tỉ lệ nguồn và tính đúng vùng ảnh đang hiển thị.
+ */
+function prepareDetectionFrame(source, sourceWidth, sourceHeight, maxSide = 960) {
+    const srcW = Math.max(1, Number(sourceWidth) || 1);
+    const srcH = Math.max(1, Number(sourceHeight) || 1);
+    const resizeScale = Math.min(1, maxSide / Math.max(srcW, srcH));
+    const frameWidth = Math.max(1, Math.round(srcW * resizeScale));
+    const frameHeight = Math.max(1, Math.round(srcH * resizeScale));
+
+    // Đổi kích thước canvas sẽ xóa nội dung cũ; luôn vẽ lại ngay sau đó.
+    hiddenCanvas.width = frameWidth;
+    hiddenCanvas.height = frameHeight;
+    ctxHidden.clearRect(0, 0, frameWidth, frameHeight);
+    ctxHidden.drawImage(source, 0, 0, frameWidth, frameHeight);
+
+    return { sourceWidth: frameWidth, sourceHeight: frameHeight };
+}
+
+function getContainRect(sourceWidth, sourceHeight, targetWidth, targetHeight) {
+    const srcW = Math.max(1, Number(sourceWidth) || 1);
+    const srcH = Math.max(1, Number(sourceHeight) || 1);
+    const dstW = Math.max(1, Number(targetWidth) || 1);
+    const dstH = Math.max(1, Number(targetHeight) || 1);
+    const scale = Math.min(dstW / srcW, dstH / srcH);
+    const drawWidth = srcW * scale;
+    const drawHeight = srcH * scale;
+
+    return {
+        scaleX: scale,
+        scaleY: scale,
+        offsetX: (dstW - drawWidth) / 2,
+        offsetY: (dstH - drawHeight) / 2,
+        drawWidth,
+        drawHeight,
+        sourceWidth: srcW,
+        sourceHeight: srcH
+    };
+}
+
+function getDetectionDisplayRect(data, fallbackMeta = null) {
+    const sourceWidth = Number(data && data.frame_width)
+        || Number(fallbackMeta && fallbackMeta.sourceWidth)
+        || overlay.width;
+    const sourceHeight = Number(data && data.frame_height)
+        || Number(fallbackMeta && fallbackMeta.sourceHeight)
+        || overlay.height;
+
+    return getContainRect(
+        sourceWidth,
+        sourceHeight,
+        overlay.width,
+        overlay.height
+    );
+}
+
+function renderDetections(detections, listId, badgeId) {
+    const list = document.getElementById(listId);
+    const badge = document.getElementById(badgeId);
+    list.innerHTML = "";
+    badge.innerText = `${detections.length} biển`;
+
+    detections.forEach(d => {
+        const div = document.createElement("div");
+        div.className = "detect-item";
+        div.innerHTML = `
+            <strong>${escapeHTML(d.code)} - ${escapeHTML(d.label || d.name)}</strong>
+            <div class="detect-meta">
+                Nhóm: ${escapeHTML(d.group)} | Độ tin cậy: ${Number(d.conf).toFixed(2)}
+            </div>
+            <div class="detect-meta">${escapeHTML(d.warning || "")}</div>
+            ${d.ocr_text ? `<div class="detect-meta">OCR: ${escapeHTML(d.ocr_text)}</div>` : ""}
+        `;
+        list.appendChild(div);
+    });
+}
+
+function _pushCameraVoteFrame(detections) {
+    const frameCodes = new Map();
+
+    (detections || []).forEach(d => {
+        const code = String(d.code || "").trim();
+        if (!code) return;
+
+        const conf = Number(d.conf || 0);
+        const old = frameCodes.get(code);
+        if (!old || conf > Number(old.conf || 0)) {
+            frameCodes.set(code, d);
+        }
+    });
+
+    cameraVoteHistory.push(frameCodes);
+    if (cameraVoteHistory.length > CAMERA_VOTE_WINDOW) {
+        cameraVoteHistory.shift();
+    }
+}
+
+function _cameraVoteCount(code) {
+    return cameraVoteHistory.reduce(
+        (sum, frameMap) => sum + (frameMap.has(code) ? 1 : 0),
+        0
+    );
+}
+
+function processResult(data, isVideo, capturedTime = null) {
+    const resultId = isVideo ? "video-current-result" : "current-result";
+    const historyId = isVideo ? "video-timeline-log" : "history-log";
+    const listId = isVideo ? "video-detections-list" : "detections-list";
+    const badgeId = isVideo ? "video-count-badge" : "count-badge";
+    const detections = (data.detections || [])
+        .slice()
+        .sort((a, b) => Number(b.conf || 0) - Number(a.conf || 0));
+
+    renderDetections(detections, listId, badgeId);
+
+    if (!detections.length) {
+        document.getElementById(resultId).innerText = "Chưa phát hiện biển báo...";
+
+        if (!isVideo && camLoopActive) {
+            _pushCameraVoteFrame([]);
+        }
+        return;
+    }
+
+    const text = data.audio_text || detections.map(d => d.label).join(", ");
+    document.getElementById(resultId).innerText = text;
+
+    const now = isVideo ? (capturedTime ?? 0) : Date.now() / 1000;
+    const isUploadInstant = !isVideo && !camLoopActive;
+
+    // Ảnh upload: đọc ngay như trước.
+    if (isUploadInstant) {
+        const key = "upload:" + text;
+        if (now - (announcedSigns[key] || -999) > 1) {
+            announcedSigns[key] = now;
+            addToHistory(text, historyId, "[Camera/Ảnh]");
+            speakAI(text, true);
+        }
+        return;
+    }
+
+    // Video: xác nhận từng MÃ BIỂN, nhưng KHÔNG xếp hàng audio_text của frame cũ.
+    // Khi loa rảnh, chọn biển đang ở gần xe hơn trong frame MỚI NHẤT để đọc trước.
+    if (isVideo) {
+        const visibleCodes = new Set(
+            detections.map(d => String(d.code || d.label || "unknown"))
+        );
+
+        Object.keys(signBuffer).forEach(code => {
+            if (!visibleCodes.has(code)) signBuffer[code] = 0;
+        });
+
+        detections.forEach(det => {
+            const code = String(det.code || det.label || "unknown");
+            signBuffer[code] = (signBuffer[code] || 0) + 1;
+        });
+
+        latestVideoSpeechDetections = detections.filter(det => {
+            const code = String(det.code || det.label || "unknown");
+            const conf = Number(det.conf || 0);
+            return conf >= VIDEO_SPEAK_IMMEDIATE_CONF || signBuffer[code] >= 2;
+        });
+        latestVideoSpeechTime = now;
+        maybeSpeakCurrentVideoSign();
+        return;
+    }
+
+    // Camera realtime: theo dõi TỪNG mã biển trong 3 frame gần nhất.
+    // Bản cũ chỉ chọn detection có confidence cao nhất, nên biển thứ hai thường
+    // phải chờ biển thứ nhất biến mất rồi mới được đọc -> cảnh báo bị trễ.
+    _pushCameraVoteFrame(detections);
+
+    const freshStableDetections = detections.filter(det => {
+        const code = String(det.code || det.label || "unknown");
+        const conf = Number(det.conf || 0);
+        const votes = _cameraVoteCount(code);
+
+        const stableEnough =
+            conf >= CAMERA_IMMEDIATE_CONF ||
+            (conf >= CAMERA_STABLE_CONF && votes >= 2);
+
+        const cooldownReady =
+            now - (announcedSigns[code] || -999) > CAMERA_SPEAK_COOLDOWN_SEC;
+
+        return stableEnough && cooldownReady;
+    });
+
+    if (freshStableDetections.length) {
+        // Đánh dấu tất cả biển sắp đọc ngay tại frame này để frame kế tiếp không lặp lại.
+        freshStableDetections.forEach(det => {
+            const code = String(det.code || det.label || "unknown");
+            announcedSigns[code] = now;
+        });
+
+        const speechText = buildRealtimeSpeechText(freshStableDetections);
+        if (speechText) {
+            addToHistory(speechText, historyId, "[Camera]");
+            // urgent=true: nếu một biển mới xuất hiện khi loa còn đọc câu cũ,
+            // bỏ câu cũ và đọc cảnh báo mới ngay, tránh xếp hàng gây trễ.
+            speakAI(speechText, true);
+        }
+    }
+}
+
+function videoBoxApproachScore(det) {
+    const box = Array.isArray(det?.box) ? det.box.map(Number) : [0, 0, 0, 0];
+    const w = Math.max(0, box[2] - box[0]);
+    const h = Math.max(0, box[3] - box[1]);
+    const area = w * h;
+    const y2 = Number(box[3] || 0);
+    // Biển thấp hơn trong ảnh và có box lớn hơn thường là biển xe sẽ gặp trước.
+    return y2 * 2 + Math.sqrt(area) + Number(det?.conf || 0) * 100;
+}
+
+function videoSpeechText(det) {
+    let warning = String(det?.warning || "").trim();
+    if (warning) {
+        warning = warning
+            .replace(/phía trước\s+ở phía trước/gi, "phía trước")
+            .replace(/phía trước\s+phía trước/gi, "phía trước");
+        return warning;
+    }
+    const name = String(det?.name || det?.label || det?.code || "Biển báo").trim();
+    return `${name} phía trước.`;
+}
+
+function maybeSpeakCurrentVideoSign() {
+    if (!globalVoiceEnabled || !videoLoopActive) return;
+
+    const nowVideo = Number(latestVideoSpeechTime || vidPlayer.currentTime || 0);
+    const candidates = (latestVideoSpeechDetections || [])
+        .filter(det => {
+            const code = String(det.code || det.label || "unknown");
+            return nowVideo - (videoAnnouncedSigns[code] ?? -999) > VIDEO_SPEAK_COOLDOWN_SEC;
+        })
+        .sort((a, b) => {
+            const p = realtimeSpeechPriority(a) - realtimeSpeechPriority(b);
+            if (p !== 0) return p;
+            return videoBoxApproachScore(b) - videoBoxApproachScore(a);
+        })
+        .slice(0, REALTIME_TTS_MAX_ITEMS);
+
+    if (!candidates.length) return;
+
+    const text = buildRealtimeSpeechText(candidates);
+    if (!text) return;
+
+    // Ghi cooldown cho toàn bộ biển được đọc trong cùng một câu.
+    candidates.forEach(det => {
+        const code = String(det.code || det.label || "unknown");
+        videoAnnouncedSigns[code] = nowVideo;
+    });
+
+    // Nếu đang đọc cảnh báo cũ mà xuất hiện biển MỚI, ngắt câu cũ.
+    // Không để câu thứ hai nằm trong queue rồi phát sau khi xe đã đi qua.
+    const generation = ++videoSpeechGeneration;
+    if (videoSpeechBusy || speechSynthesis.speaking || speechSynthesis.pending) {
+        speechSynthesis.cancel();
+    }
+
+    videoSpeechBusy = true;
+    addToHistory(text, "video-timeline-log", `[${formatTime(nowVideo)}]`);
+
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = "vi-VN";
+    msg.rate = REALTIME_TTS_RATE;
+    msg.pitch = 1.0;
+    msg.volume = 1.0;
+
+    const release = () => {
+        // Callback của câu đã bị cancel không được làm thay đổi trạng thái câu mới.
+        if (generation !== videoSpeechGeneration) return;
+        videoSpeechBusy = false;
+
+        // Không dùng queue cũ. Sau khi đọc xong chỉ xét frame MỚI NHẤT.
+        setTimeout(maybeSpeakCurrentVideoSign, 40);
+    };
+    msg.onend = release;
+    msg.onerror = release;
+
+    setTimeout(() => {
+        if (
+            generation === videoSpeechGeneration &&
+            globalVoiceEnabled &&
+            videoLoopActive
+        ) {
+            speechSynthesis.speak(msg);
+        }
+    }, 20);
+}
+
+function formatTime(sec) {
+    sec = Math.max(0, Math.floor(sec || 0));
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function clearOverlayAndResult() {
+    ctxOverlay.clearRect(0, 0, overlay.width, overlay.height);
+    uploadPreview.style.display = "none";
+    cameraPlaceholder.style.display = "flex";
+    document.getElementById("current-result").innerText = "Đã xóa kết quả.";
+    document.getElementById("detections-list").innerHTML = "";
+    document.getElementById("count-badge").innerText = "0 biển";
+    speechSynthesis.cancel();
+}
+
+function startCamera() {
+    if (stream) return;
+    uploadPreview.style.display = "none";
+    navigator.mediaDevices.getUserMedia({
+        video: { facingMode: useFrontCamera ? "user" : "environment" },
+        audio: false
+    }).then(s => {
+        stream = s;
+        video.srcObject = stream;
+        cameraPlaceholder.style.display = "none";
+        liveIndicator.style.display = "block";
+        announcedSigns = {};
+        signBuffer = {};
+        cameraVoteHistory = [];
+        setTimeout(() => {
+            camLoopActive = true;
+            scheduleCamFrame();
+        }, 700);
+    }).catch(err => {
+        document.getElementById("current-result").innerText = "Không mở được camera: " + err.message;
+    });
+}
+
+function stopCamera() {
+    camLoopActive = false;
+    cameraVoteHistory = [];
+    if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+    }
+    video.srcObject = null;
+    liveIndicator.style.display = "none";
+    cameraPlaceholder.style.display = "flex";
+    ctxOverlay.clearRect(0, 0, overlay.width, overlay.height);
+    speechSynthesis.cancel();
+}
+
+function switchCamera() {
+    useFrontCamera = !useFrontCamera;
+    if (stream) {
+        stopCamera();
+        setTimeout(startCamera, 300);
+    }
+}
+
+function scheduleCamFrame() {
+    if (!camLoopActive || !stream) return;
+    if (isProcessingCam) {
+        setTimeout(scheduleCamFrame, 150);
+        return;
+    }
+    processCamFrame();
+}
+
+function processCamFrame() {
+    if (!stream || !camLoopActive) return;
+
+    if (!video.videoWidth || !video.videoHeight) {
+        setTimeout(scheduleCamFrame, 120);
+        return;
+    }
+
+    isProcessingCam = true;
+    const displayMeta = prepareDetectionFrame(
+        video,
+        video.videoWidth,
+        video.videoHeight,
+        720
+    );
+    sendImageToAPI(
+        hiddenCanvas.toDataURL("image/jpeg", 0.62),
+        false,
+        false,
+        displayMeta
+    );
+}
+
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (stream) stopCamera();
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+            cameraPlaceholder.style.display = "none";
+            uploadPreview.src = e.target.result;
+            uploadPreview.style.display = "block";
+            uploadPreview.style.objectFit = "contain";
+
+            ctxOverlay.clearRect(0, 0, overlay.width, overlay.height);
+            const displayMeta = prepareDetectionFrame(
+                img,
+                img.naturalWidth || img.width,
+                img.naturalHeight || img.height,
+                960
+            );
+
+            announcedSigns = {};
+            signBuffer = {};
+            sendImageToAPI(
+                hiddenCanvas.toDataURL("image/jpeg", 0.88),
+                false,
+                true,
+                displayMeta
+            );
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    event.target.value = "";
+}
+
+function sendImageToAPI(dataURL, isVideo, isUpload, displayMeta = null) {
+    const conf = isVideo
+        ? parseFloat(document.getElementById("video-conf-slider").value)
+        : parseFloat(document.getElementById("conf-slider").value);
+
+    const vehicle = isVideo
+        ? document.getElementById("video-vehicle-type").value
+        : document.getElementById("vehicle-type").value;
+
+    const sourceType = isVideo ? "video" : (isUpload ? "upload" : "camera");
+    const inferenceSize = isUpload ? 640 : 512;
+
+    return fetch("/detect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            image: dataURL,
+            conf: conf,
+            vehicle_type: vehicle,
+            source_type: sourceType,
+            imgsz: inferenceSize
+        })
+    }).then(res => res.json()).then(data => {
+        if (data.error) {
+            document.getElementById(
+                isVideo ? "video-current-result" : "current-result"
+            ).innerText = data.error;
+            return data;
+        }
+
+        if (!isVideo) {
+            ctxOverlay.clearRect(0, 0, overlay.width, overlay.height);
+            const rect = getDetectionDisplayRect(data, displayMeta);
+            drawDetections(
+                ctxOverlay,
+                data.detections || [],
+                rect.scaleX,
+                rect.scaleY,
+                rect.offsetX,
+                rect.offsetY
+            );
+            processResult(data, false);
+
+            if (Number.isFinite(Number(data.inference_ms))) {
+                console.log(
+                    `[YOLO ${sourceType}] inference=${data.inference_ms}ms total=${data.total_ms}ms imgsz=${data.imgsz}`
+                );
+            }
+        }
+
+        return data;
+    }).catch(err => {
+        console.error(err);
+    }).finally(() => {
+        if (!isVideo) {
+            isProcessingCam = false;
+
+            // Không chờ 350ms như bản cũ. CPU đã tự tạo back-pressure vì
+            // request kế tiếp chỉ gửi sau khi request trước hoàn tất.
+            if (camLoopActive) setTimeout(scheduleCamFrame, 100);
+        }
+    });
+}
+
+
+// =======================
+// TAB 3: TRA CỨU BIỂN BÁO
+// =======================
+let currentLookupDetail = null;
+
+function searchSigns() {
+    const query = document.getElementById("lookup-query").value.trim();
+    const group = document.getElementById("lookup-group").value;
+    const vehicle = document.getElementById("lookup-vehicle-type").value;
+
+    const params = new URLSearchParams({
+        query: query,
+        group: group,
+        vehicle_type: vehicle
+    });
+
+    fetch("/api/signs?" + params.toString())
+        .then(res => res.json())
+        .then(data => {
+            renderLookupResults(data.results || []);
+            document.getElementById("lookup-count-badge").innerText = `${data.count || 0} kết quả`;
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("lookup-results").innerHTML = `
+                <div class="note" style="color:#dc2626;">Lỗi tải dữ liệu tra cứu.</div>
+            `;
+        });
+}
+
+function renderLookupResults(signs) {
+    const box = document.getElementById("lookup-results");
+    box.innerHTML = "";
+
+    if (!signs.length) {
+        box.innerHTML = `
+            <div class="note">
+                Không tìm thấy biển báo phù hợp. Thử nhập từ khóa khác như “cấm”, “rẽ trái”, “tốc độ”, “đèn đỏ”.
+            </div>
+        `;
+        return;
+    }
+
+    signs.forEach(sign => {
+        const item = document.createElement("div");
+        item.className = "sign-card";
+        item.innerHTML = `
+            <strong>${escapeHTML(sign.code)} - ${escapeHTML(sign.name)}</strong>
+            <div class="detect-meta">
+                Nhóm: ${escapeHTML(sign.group)} | Mức độ: ${escapeHTML(sign.warning_level)}
+            </div>
+            <div class="detect-meta">
+                Đối tượng/điều kiện: ${escapeHTML(sign.applicability_text || "Chưa xác định")}
+            </div>
+            <div class="detect-meta">${escapeHTML(sign.recommendation || sign.warning || "")}</div>
+        `;
+
+        item.addEventListener("click", () => {
+            loadSignDetail(sign.code);
+        });
+
+        box.appendChild(item);
+    });
+}
+
+function loadSignDetail(code) {
+    const vehicle = document.getElementById("lookup-vehicle-type").value;
+
+    fetch(`/api/signs/${encodeURIComponent(code)}?vehicle_type=${encodeURIComponent(vehicle)}`)
+        .then(res => res.json())
+        .then(sign => {
+            renderLookupDetail(sign);
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("lookup-detail").innerHTML = `
+                <div class="note" style="color:#dc2626;">Không tải được chi tiết biển báo.</div>
+            `;
+        });
+}
+
+function renderLookupDetail(sign) {
+    currentLookupDetail = sign;
+
+    const statusConfig = {
+        overview: {
+            color: "#2563eb",
+            text: "Đang xem tổng quan – chưa lọc theo phương tiện"
+        },
+        applies: {
+            color: "#16a34a",
+            text: "Có áp dụng cho phương tiện đang chọn"
+        },
+        not_applies: {
+            color: "#f97316",
+            text: "Không áp dụng trực tiếp cho phương tiện đang chọn"
+        },
+        conditional: {
+            color: "#7c3aed",
+            text: "Chỉ áp dụng khi thỏa điều kiện nêu trên"
+        },
+        depends: {
+            color: "#7c3aed",
+            text: "Phải đọc biển chính, hình hoặc chữ đi kèm để kết luận"
+        }
+    };
+    const status = statusConfig[sign.selection_status] || statusConfig.overview;
+    const sourceUrl = sign.applicability_source_url || "";
+    const sourceTitle = sign.applicability_source_title || "QCVN 41:2024/BGTVT";
+
+    document.getElementById("lookup-current-result").innerText = sign.recommendation || sign.warning || sign.name;
+
+    document.getElementById("lookup-detail").innerHTML = `
+        <div class="detail-line">
+            <strong>Mã biển:</strong> ${escapeHTML(sign.code)}
+        </div>
+
+        <div class="detail-line">
+            <strong>Tên biển:</strong> ${escapeHTML(sign.name)}
+        </div>
+
+        <div class="detail-line">
+            <strong>Nhóm biển:</strong> ${escapeHTML(sign.group)}
+        </div>
+
+        <div class="detail-line">
+            <strong>Mức độ cảnh báo:</strong>
+            <span class="warning-level">${escapeHTML(sign.warning_level)}</span>
+        </div>
+
+        <div class="detail-line">
+            <strong>Ý nghĩa:</strong> ${escapeHTML(sign.meaning)}
+        </div>
+
+        <div class="detail-line">
+            <strong>Đối tượng/điều kiện áp dụng:</strong>
+            ${escapeHTML(sign.applicability_text || "Chưa xác định")}
+        </div>
+
+        <div class="detail-line">
+            <strong>Bộ lọc phương tiện:</strong>
+            ${escapeHTML(sign.vehicle_name || "chưa lọc phương tiện")}
+        </div>
+
+        <div class="detail-line" style="color:${status.color}; font-weight:800;">
+            ${escapeHTML(status.text)}
+        </div>
+
+        ${sourceUrl ? `
+        <div class="detail-line">
+            <strong>Nguồn đối chiếu:</strong>
+            <a href="${escapeHTML(sourceUrl)}" target="_blank" rel="noopener noreferrer">
+                ${escapeHTML(sourceTitle)}
+            </a>
+        </div>` : ""}
+
+        <div class="detail-line">
+            <strong>Hành vi được phép:</strong> ${escapeHTML(sign.allowed_behavior)}
+        </div>
+
+        <div class="detail-line">
+            <strong>Hành vi bị cấm / cần chú ý:</strong> ${escapeHTML(sign.forbidden_behavior)}
+        </div>
+
+        <div class="detail-line">
+            <strong>Chỉ dẫn trợ lý ảo:</strong> ${escapeHTML(sign.recommendation)}
+        </div>
+
+        <div class="detail-line">
+            <strong>Câu cảnh báo giọng nói:</strong> ${escapeHTML(sign.voice_text)}
+        </div>
+    `;
+}
+
+function speakLookupDetail() {
+    if (!currentLookupDetail) {
+        speakAI("Vui lòng chọn một biển báo để tra cứu.", true);
+        return;
+    }
+
+    const text = currentLookupDetail.voice_text || currentLookupDetail.recommendation || currentLookupDetail.warning;
+    speakAI(text, true);
+}
+
+function lookupByImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const preview = document.getElementById("lookup-image-preview");
+    const canvas = document.getElementById("lookup-hidden-canvas");
+    const ctx = canvas.getContext("2d");
+
+    const reader = new FileReader();
+
+    reader.onload = e => {
+        const img = new Image();
+
+        img.onload = () => {
+            preview.src = e.target.result;
+            preview.style.display = "block";
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            document.getElementById("lookup-current-result").innerText = "Đang nhận diện ảnh để tra cứu...";
+            document.getElementById("lookup-results").innerHTML = `
+                <div class="note">Đang phân tích ảnh bằng YOLOv8...</div>
+            `;
+
+            const vehicle = document.getElementById("lookup-vehicle-type").value;
+            const dataURL = canvas.toDataURL("image/jpeg", 0.85);
+
+            fetch("/detect", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    image: dataURL,
+                    conf: 0.35,
+                    vehicle_type: vehicle
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const detections = data.detections || [];
+
+                if (!detections.length) {
+                    document.getElementById("lookup-current-result").innerText =
+                        "Chưa nhận diện được biển báo trong ảnh. Vui lòng chụp rõ hơn hoặc thử ảnh khác.";
+
+                    document.getElementById("lookup-results").innerHTML = `
+                        <div class="note">
+                            Không phát hiện biển báo. Có thể ảnh quá mờ, biển quá nhỏ hoặc góc chụp chưa rõ.
+                        </div>
+                    `;
+                    return;
+                }
+
+                renderLookupDetectedSigns(detections);
+
+                const best = detections.slice().sort((a, b) => Number(b.conf) - Number(a.conf))[0];
+                if (best && best.code) {
+                    loadSignDetail(best.code);
+                }
+
+                document.getElementById("lookup-current-result").innerText =
+                    data.audio_text || `Đã phát hiện ${detections.length} biển báo trong ảnh.`;
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("lookup-current-result").innerText = "Lỗi khi nhận diện ảnh tra cứu.";
+            });
+        };
+
+        img.src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+    event.target.value = "";
+}
+
+function renderLookupDetectedSigns(detections) {
+    const box = document.getElementById("lookup-results");
+    box.innerHTML = "";
+
+    const title = document.createElement("div");
+    title.className = "note";
+    title.innerHTML = `<strong>Biển báo phát hiện từ ảnh:</strong>`;
+    box.appendChild(title);
+
+    detections
+        .slice()
+        .sort((a, b) => Number(b.conf) - Number(a.conf))
+        .forEach(d => {
+            const item = document.createElement("div");
+            item.className = "sign-card";
+            item.innerHTML = `
+                <strong>${escapeHTML(d.code)} - ${escapeHTML(d.label || d.name)}</strong>
+                <div class="detect-meta">
+                    Nhóm: ${escapeHTML(d.group)} | Độ tin cậy: ${Number(d.conf).toFixed(2)}
+                </div>
+                <div class="detect-meta">${escapeHTML(d.warning || "")}</div>
+                ${d.ocr_text ? `<div class="detect-meta">OCR: ${escapeHTML(d.ocr_text)}</div>` : ""}
+            `;
+
+            item.addEventListener("click", () => {
+                loadSignDetail(d.code);
+            });
+
+            box.appendChild(item);
+        });
+
+    document.getElementById("lookup-count-badge").innerText = `${detections.length} biển`;
+}
+
+function clearLookupImage() {
+    const preview = document.getElementById("lookup-image-preview");
+    preview.src = "";
+    preview.style.display = "none";
+
+    document.getElementById("lookup-current-result").innerText =
+        "Chọn một biển báo trong danh sách hoặc tải ảnh/chụp ảnh để tra cứu.";
+
+    document.getElementById("lookup-detail").innerHTML = `
+        <div class="note">
+            Thông tin chi tiết sẽ hiển thị tại đây: mã biển, tên biển, nhóm biển, ý nghĩa, phương tiện áp dụng, hành vi được phép/bị cấm và câu cảnh báo.
+        </div>
+    `;
+
+    currentLookupDetail = null;
+    searchSigns();
+}
+
+
+// =======================
+// CHATBOT RAG PHÁP LUẬT GIAO THÔNG OFFLINE
+// =======================
+let chatbotBusy = false;
+let chatbotHistory = [];
+let chatbotStatusTimer = null;
+
+function scrollChatToBottom(smooth = true) {
+    const box = document.getElementById("chat-messages");
+    if (!box) return;
+
+    requestAnimationFrame(() => {
+        box.scrollTo({
+            top: box.scrollHeight,
+            behavior: smooth ? "smooth" : "auto"
+        });
+    });
+}
+
+function formatInlineMarkdown(text) {
+    return String(text || "")
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+}
+
+function decorateAnswerLine(line) {
+    const rules = [
+        [/^Ý nghĩa\s*:/i, "🚦 **Ý nghĩa:**"],
+        [/^Phương tiện áp dụng\s*:/i, "🚗 **Áp dụng:**"],
+        [/^Với phương tiện đang chọn[^,]*,\s*/i, "🚗 **Áp dụng:** "],
+        [/^Hành vi được phép\s*:/i, "✅ **Bạn cần:**"],
+        [/^Hành vi bị cấm\/cần chú ý\s*:/i, "⚠️ **Cần tránh:**"],
+        [/^Hành vi bị cấm hoặc cần chú ý\s*:/i, "⚠️ **Cần tránh:**"],
+        [/^Khuyến nghị(?: an toàn)?\s*:/i, "📌 **Khuyến nghị:**"],
+        [/^Xử phạt tham khảo\s*:/i, "💰 **Mức phạt:**"],
+        [/^Mức phạt\s*:/i, "💰 **Mức phạt:**"],
+        [/^Căn cứ tham khảo\s*:/i, "📜 **Căn cứ pháp lý:**"],
+        [/^Căn cứ pháp lý\s*:/i, "📜 **Căn cứ pháp lý:**"],
+        [/^Trừ điểm(?:\/hình phạt bổ sung)?\s*:/i, "🪪 **Trừ điểm / bổ sung:**"],
+        [/^Hành vi\s*:/i, "⚖️ **Hành vi:**"],
+        [/^Phương tiện\s*:/i, "🚗 **Phương tiện:**"]
+    ];
+
+    for (const [pattern, replacement] of rules) {
+        if (pattern.test(line)) {
+            return line.replace(pattern, replacement);
+        }
+    }
+
+    if (/^[A-Z]\.\d+[a-z0-9]*\s*-/i.test(line)) {
+        return `📍 **Biển:** ${line}`;
+    }
+
+    return line;
+}
+
+function formatBotAnswer(text) {
+    const safeText = escapeHTML(String(text || "").trim());
+
+    if (!safeText) {
+        return '<p class="answer-paragraph">Mình chưa tìm thấy câu trả lời phù hợp.</p>';
+    }
+
+    const lines = safeText.split(/\r?\n/);
+    let html = "";
+    let listOpened = false;
+
+    const closeList = () => {
+        if (listOpened) {
+            html += "</ul>";
+            listOpened = false;
+        }
+    };
+
+    lines.forEach(rawLine => {
+        let line = rawLine.trim();
+
+        if (!line) {
+            closeList();
+            // Không tạo khoảng trắng lớn giữa từng mục trả lời.
+            return;
+        }
+
+        if (/^#{1,3}\s+/.test(line)) {
+            closeList();
+            const title = line.replace(/^#{1,3}\s+/, "");
+            html += `<div class="answer-heading">${formatInlineMarkdown(title)}</div>`;
+            return;
+        }
+
+        if (/^[-*•]\s+/.test(line)) {
+            if (!listOpened) {
+                html += '<ul class="answer-list">';
+                listOpened = true;
+            }
+            const content = line.replace(/^[-*•]\s+/, "");
+            html += `<li>${formatInlineMarkdown(content)}</li>`;
+            return;
+        }
+
+        closeList();
+        line = decorateAnswerLine(line);
+
+        if (/^(📍|🚦|🚫|🚗|🏍️|📌|✅|⚠️|⚖️|💰|🪪|📜|🔎|👉)/.test(line)) {
+            html += `<div class="answer-section">${formatInlineMarkdown(line)}</div>`;
+            return;
+        }
+
+        if (/^(Lưu ý|Thông tin mang tính tham khảo)/i.test(line)) {
+            html += `<div class="answer-legal-note">${formatInlineMarkdown(line)}</div>`;
+            return;
+        }
+
+        html += `<p class="answer-paragraph">${formatInlineMarkdown(line)}</p>`;
+    });
+
+    closeList();
+    return html;
+}
+
+function formatChatSources(sources) {
+    if (!Array.isArray(sources) || !sources.length) return "";
+
+    // Trang TOÀN VĂN dạng chữ của Chính phủ. Đây cũng chính là nguồn
+    // dùng để tạo file nghi_dinh_168_2024_toan_van.txt cho RAG local.
+    const NGHI_DINH_168_FULLTEXT_URL =
+        "https://xaydungchinhsach.chinhphu.vn/" +
+        "toan-van-nghi-dinh-168-2024-nd-cp-quy-dinh-xu-phat-" +
+        "vi-pham-hanh-chinh-ve-trat-tu-atgt-duong-bo-119241231164556785.htm";
+
+    const officialSourceLinks = {
+        "nghi_dinh_168_fulltext": NGHI_DINH_168_FULLTEXT_URL,
+        "nghi_dinh_168_2024_toan_van.txt": NGHI_DINH_168_FULLTEXT_URL,
+        "nghi_dinh_168_2024_toan_van(1).txt": NGHI_DINH_168_FULLTEXT_URL,
+        "Nghị định 168/2024/NĐ-CP": NGHI_DINH_168_FULLTEXT_URL
+    };
+
+    const officialSourceNames = {
+        "nghi_dinh_168_2024_toan_van.txt":
+            "Nghị định 168/2024/NĐ-CP – Toàn văn",
+        "nghi_dinh_168_2024_toan_van(1).txt":
+            "Nghị định 168/2024/NĐ-CP – Toàn văn",
+        "Nghị định 168/2024/NĐ-CP":
+            "Nghị định 168/2024/NĐ-CP – Toàn văn"
+    };
+
+    const unique = [];
+    const seen = new Set();
+
+    sources.forEach(source => {
+        const file = String(source.file || "Nguồn dữ liệu");
+        const urlKey = String(source.url_key || "");
+
+        // File TXT là bản toàn văn dạng chữ dùng cho RAG, không có số trang
+        // thật. Không hiển thị "trang 1" giả do metadata mặc định của RAG.
+        const isTextSource = /\.(txt|md|json)$/i.test(file);
+        const page = source.page && !isTextSource
+            ? ` - trang ${source.page}`
+            : "";
+
+        const displayName = String(
+            source.title ||
+            officialSourceNames[file] ||
+            file
+        );
+
+        const url = String(
+            source.url ||
+            officialSourceLinks[urlKey] ||
+            officialSourceLinks[file] ||
+            ""
+        );
+
+        const key = `${displayName}|${page}|${url}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+
+        if (url) {
+            unique.push(`
+                <a
+                    class="chat-source-link"
+                    href="${escapeHTML(url)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Mở nguồn toàn văn chính thức để đối chiếu"
+                >
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    ${escapeHTML(displayName + page)}
+                </a>
+            `);
+        } else {
+            unique.push(`
+                <span class="chat-source-text">
+                    <i class="fa-solid fa-file-lines"></i>
+                    ${escapeHTML(displayName + page)}
+                </span>
+            `);
+        }
+    });
+
+    if (!unique.length) return "";
+
+    return `
+        <div class="chat-sources">
+            <div class="chat-sources-title">
+                <i class="fa-solid fa-book-open"></i>
+                Nguồn tham khảo
+            </div>
+            <div class="chat-sources-list">
+                ${unique.join("")}
+            </div>
+        </div>
+    `;
+}
+
+function getChatAvatar(role) {
+    if (role === "user") {
+        return `
+            <div class="chat-avatar-wrap user-avatar-wrap">
+                <div class="chat-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <span class="chat-avatar-label">Bạn</span>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="chat-avatar-wrap">
+            <div class="chat-avatar">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <span class="chat-avatar-label">AI</span>
+        </div>
+    `;
+}
+
+function getChatModeLabel(mode) {
+    if (mode === "structured_law") {
+        return `
+            <span class="chat-mode knowledge">
+                <i class="fa-solid fa-scale-balanced"></i>
+                Tra cứu mức phạt
+            </span>
+        `;
+    }
+
+    if (mode === "rag") {
+        return `
+            <span class="chat-mode rag">
+                <i class="fa-solid fa-brain"></i>
+                AI RAG local
+            </span>
+        `;
+    }
+
+    if (mode === "knowledge") {
+        return `
+            <span class="chat-mode knowledge">
+                <i class="fa-solid fa-database"></i>
+                Cơ sở tri thức
+            </span>
+        `;
+    }
+
+    if (mode === "rule_based") {
+        return `
+            <span class="chat-mode fallback">
+                <i class="fa-solid fa-shield-halved"></i>
+                Chế độ dự phòng
+            </span>
+        `;
+    }
+
+    return "";
+}
+
+function appendChatMessage(role, text, options = {}) {
+    const box = document.getElementById("chat-messages");
+    if (!box) return null;
+
+    const item = document.createElement("div");
+    item.className = `chat-message ${role} chat-message-enter`;
+
+    const messageHTML = role === "bot"
+        ? formatBotAnswer(text)
+        : escapeHTML(String(text || "")).replace(/\n/g, "<br>");
+
+    item.innerHTML = `
+        ${getChatAvatar(role)}
+        <div class="chat-message-content">
+            <div class="chat-bubble">${messageHTML}</div>
+            ${
+                role === "bot"
+                    ? getChatModeLabel(options.mode) + formatChatSources(options.sources)
+                    : ""
+            }
+        </div>
+    `;
+
+    box.appendChild(item);
+    scrollChatToBottom();
+    return item;
+}
+
+function appendChatLoadingMessage() {
+    const box = document.getElementById("chat-messages");
+    if (!box) return null;
+
+    const item = document.createElement("div");
+    item.className = "chat-message bot chat-loading chat-message-enter";
+
+    item.innerHTML = `
+        ${getChatAvatar("bot")}
+        <div class="chat-message-content">
+            <div class="chat-bubble chat-thinking-bubble">
+                <span class="thinking-text">Đang suy nghĩ</span>
+                <span class="thinking-dots" aria-label="Đang xử lý">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </div>
+        </div>
+    `;
+
+    box.appendChild(item);
+    scrollChatToBottom();
+    return item;
+}
+
+function updateBotMessage(item, text, options = {}) {
+    if (!item) return;
+
+    item.classList.remove("chat-loading");
+
+    const bubble = item.querySelector(".chat-bubble");
+    if (bubble) {
+        bubble.classList.remove("chat-thinking-bubble");
+        bubble.innerHTML = formatBotAnswer(text);
+    }
+
+    const content = item.querySelector(".chat-message-content");
+    if (!content) return;
+
+    content
+        .querySelectorAll(".chat-mode, .chat-sources")
+        .forEach(node => node.remove());
+
+    const modeHTML = getChatModeLabel(options.mode);
+    if (modeHTML) {
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = modeHTML.trim();
+        if (wrapper.firstElementChild) {
+            content.appendChild(wrapper.firstElementChild);
+        }
+    }
+
+    const sourcesHTML = formatChatSources(options.sources);
+    if (sourcesHTML) {
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = sourcesHTML.trim();
+        if (wrapper.firstElementChild) {
+            content.appendChild(wrapper.firstElementChild);
+        }
+    }
+
+    scrollChatToBottom();
+}
+
+function setChatbotStatus(status) {
+    const badge = document.getElementById("chatbot-status");
+    if (!badge) return;
+
+    badge.className = "badge rag-status";
+    if (status && status.ready) {
+        badge.classList.add("ready");
+        badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> AI RAG sẵn sàng';
+        return;
+    }
+
+    if (status && status.initializing) {
+        badge.classList.add("loading");
+        badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${escapeHTML(status.stage || "Đang tải AI")}`;
+        return;
+    }
+
+    if (status && status.error) {
+        badge.classList.add("error");
+        badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Dùng chế độ dự phòng';
+        badge.title = status.error;
+        return;
+    }
+
+    badge.classList.add("fallback");
+    badge.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Chatbot dự phòng';
+}
+
+function checkChatbotStatus() {
+    clearTimeout(chatbotStatusTimer);
+
+    fetch("/api/chatbot/status")
+        .then(res => res.json())
+        .then(status => {
+            setChatbotStatus(status);
+            if (!status.ready && status.initializing) {
+                chatbotStatusTimer = setTimeout(checkChatbotStatus, 3000);
+            }
+        })
+        .catch(() => {
+            setChatbotStatus({ error: "Không đọc được trạng thái RAG" });
+        });
+}
+
+function askQuickQuestion(question) {
+    const input = document.getElementById("chat-input");
+    input.value = question;
+    sendChatMessage();
+}
+
+function sendChatMessage() {
+    const input = document.getElementById("chat-input");
+    const sendButton = document.getElementById("chat-send-btn");
+    const question = input.value.trim();
+
+    if (!question || chatbotBusy) return;
+
+    const vehicle = document.getElementById("lookup-vehicle-type").value;
+    const contextCode = currentLookupDetail && currentLookupDetail.code
+        ? currentLookupDetail.code
+        : "";
+
+    const historyForRequest = chatbotHistory.slice(-10);
+    appendChatMessage("user", question);
+    chatbotHistory.push({
+        role: "user",
+        text: question,
+        context_code: contextCode,
+        vehicle_type: vehicle
+    });
+
+    input.value = "";
+    chatbotBusy = true;
+    input.disabled = true;
+    if (sendButton) sendButton.disabled = true;
+
+    const loadingItem = appendChatLoadingMessage();
+
+    fetch("/api/chatbot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            question: question,
+            vehicle_type: vehicle,
+            context_code: contextCode,
+            history: historyForRequest
+        })
+    })
+    .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Chatbot trả về lỗi");
+        return data;
+    })
+    .then(data => {
+        if (loadingItem) loadingItem.classList.remove("chat-loading");
+        const answer = data.answer || "Mình chưa có câu trả lời phù hợp.";
+        updateBotMessage(loadingItem, answer, {
+            mode: data.mode,
+            sources: data.sources || []
+        });
+        // Giữ metadata do server trả về để câu tiếp theo hiểu được “mức phạt
+        // này”, “căn cứ vừa rồi”, “nguồn vừa rồi” và phương tiện đang nói tới.
+        chatbotHistory.push({
+            role: "assistant",
+            text: answer,
+            mode: data.mode || "",
+            sources: Array.isArray(data.sources) ? data.sources : [],
+            context_code: data.context_code || contextCode,
+            vehicle_type: data.vehicle_type || vehicle,
+            structured_law_id: data.structured_law_id || ""
+        });
+        chatbotHistory = chatbotHistory.slice(-12);
+
+        if (data.rag_status) setChatbotStatus(data.rag_status);
+        // Đồng bộ biển vừa nhận ra từ câu chat với ngữ cảnh cho câu hỏi tiếp theo.
+        // Ví dụ: "biển báo cấm đi ngược chiều" -> P.102, sau đó hỏi
+        // "Vi phạm biển này bị phạt bao nhiêu?" sẽ dùng đúng P.102.
+        if (
+            data.context_code &&
+            (!currentLookupDetail || currentLookupDetail.code !== data.context_code)
+        ) {
+            loadSignDetail(data.context_code);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        if (loadingItem) loadingItem.classList.remove("chat-loading");
+        updateBotMessage(
+            loadingItem,
+            "Không kết nối được trợ lý ảo: " + err.message,
+            { mode: "rule_based" }
+        );
+    })
+    .finally(() => {
+        chatbotBusy = false;
+        input.disabled = false;
+        if (sendButton) sendButton.disabled = false;
+        input.focus();
+    });
+}
+
+// Kiểm tra trạng thái AI ngay khi trang được tải.
+window.addEventListener("DOMContentLoaded", checkChatbotStatus);
+
+
+// =======================
+// VIDEO
+// =======================
+const vidPlayer = document.getElementById("result-video");
+const videoOverlay = document.getElementById("video-overlay");
+const ctxVideoOverlay = videoOverlay.getContext("2d");
+const videoHiddenCanvas = document.createElement("canvas");
+const ctxVideoHidden = videoHiddenCanvas.getContext("2d");
+const videoPlaceholder = document.getElementById("video-placeholder");
+
+let videoLoopActive = false;
+let isVideoProcessing = false;
+let videoAIStartTime = 0;
+let videoRequestSerial = 0;
+let videoStableTracks = [];
+
+const VIDEO_TRACK_ALPHA = 0.58;   // bám frame mới nhanh hơn khi camera xe máy rung
+const VIDEO_TRACK_IOU = 0.18;     // cho phép ghép track khi camera dịch chuyển mạnh hơn
+const VIDEO_TRACK_CENTER_GATE = 0.80; // vẫn chặn ghép nhầm 2 biển cùng class ở xa
+const VIDEO_TRACK_TTL = 1;        // không giữ box cũ quá lâu sau khi biển đã rời khung
+const VIDEO_MIN_CONF = 0.32;      // cho tracking nhận cả frame hơi nhòe; vẫn cần ổn định trước khi đọc
+const VIDEO_MIN_AREA = 14 * 14;
+const VIDEO_MIN_AGE_TO_SHOW = 2;
+const VIDEO_MAX_RESULT_LAG = 0.62; // bỏ response cũ sớm hơn để box không chạy sau hình
+const VIDEO_PROCESS_MAX_SIDE = 960; // video dọc: giới hạn cạnh dài, giảm payload/độ trễ
+const VIDEO_JPEG_QUALITY = 0.55;
+const VIDEO_NEXT_FRAME_DELAY_MS = 70;
+const VIDEO_SPEAK_IMMEDIATE_CONF = 0.68;
+const VIDEO_SPEAK_COOLDOWN_SEC = 6;
+
+let latestVideoSpeechDetections = [];
+let latestVideoSpeechTime = 0;
+let videoSpeechBusy = false;
+let videoAnnouncedSigns = {};
+let videoSpeechGeneration = 0;
+
+function getVideoMaxSeconds() {
+    const input = document.getElementById("video-max-sec");
+    const value = input ? parseFloat(input.value) : 180;
+
+    if (Number.isNaN(value) || value <= 0) {
+        return 180;
+    }
+
+    return value;
+}
+
+function resetVideoTracks() {
+    videoStableTracks = [];
+}
+
+function getVideoDisplayRect(videoEl, canvasEl, sourceW = null, sourceH = null) {
+    // Vì video dùng object-fit: contain nên khi video quay dọc sẽ có viền đen 2 bên.
+    // Nếu không tính phần viền đen này, box sẽ bị lệch và nhìn như nhảy lung tung.
+    const cw = canvasEl.width;
+    const ch = canvasEl.height;
+    const vw = videoEl.videoWidth || cw;
+    const vh = videoEl.videoHeight || ch;
+
+    const videoRatio = vw / vh;
+    const canvasRatio = cw / ch;
+
+    let displayW, displayH, offsetX, offsetY;
+
+    if (canvasRatio > videoRatio) {
+        displayH = ch;
+        displayW = displayH * videoRatio;
+        offsetX = (cw - displayW) / 2;
+        offsetY = 0;
+    } else {
+        displayW = cw;
+        displayH = displayW / videoRatio;
+        offsetX = 0;
+        offsetY = (ch - displayH) / 2;
+    }
+
+    return {
+        offsetX,
+        offsetY,
+        // Detection chạy trên canvas xử lý có thể đã được resize nhỏ hơn video gốc.
+        scaleX: displayW / (sourceW || vw),
+        scaleY: displayH / (sourceH || vh),
+        displayW,
+        displayH
+    };
+}
+
+function boxArea(box) {
+    if (!box || box.length < 4) return 0;
+    return Math.max(0, box[2] - box[0]) * Math.max(0, box[3] - box[1]);
+}
+
+function boxIoU(a, b) {
+    if (!a || !b) return 0;
+    const x1 = Math.max(a[0], b[0]);
+    const y1 = Math.max(a[1], b[1]);
+    const x2 = Math.min(a[2], b[2]);
+    const y2 = Math.min(a[3], b[3]);
+    const inter = Math.max(0, x2 - x1) * Math.max(0, y2 - y1);
+    const union = boxArea(a) + boxArea(b) - inter;
+    return union <= 0 ? 0 : inter / union;
+}
+
+function boxCenterDistance(a, b) {
+    if (!a || !b) return Infinity;
+    const acx = (a[0] + a[2]) / 2;
+    const acy = (a[1] + a[3]) / 2;
+    const bcx = (b[0] + b[2]) / 2;
+    const bcy = (b[1] + b[3]) / 2;
+    return Math.hypot(acx - bcx, acy - bcy);
+}
+
+function boxDiagonal(box) {
+    if (!box) return 1;
+    return Math.max(1, Math.hypot(box[2] - box[0], box[3] - box[1]));
+}
+
+function smoothBox(oldBox, newBox, alpha = VIDEO_TRACK_ALPHA) {
+    if (!oldBox) return newBox.slice();
+    return oldBox.map((v, i) => v * (1 - alpha) + newBox[i] * alpha);
+}
+
+function updateVideoStableDetections(rawDetections) {
+    const cleanDets = (rawDetections || [])
+        .filter(d => d && Array.isArray(d.box) && d.box.length === 4)
+        .filter(d => Number(d.conf || 0) >= VIDEO_MIN_CONF)
+        .filter(d => {
+            const [x1, y1, x2, y2] = d.box.map(Number);
+            const w = x2 - x1;
+            const h = y2 - y1;
+            return w >= 18 && h >= 18 && (w * h) >= VIDEO_MIN_AREA;
+        })
+        .sort((a, b) => Number(b.conf || 0) - Number(a.conf || 0));
+
+    const usedTrackIndexes = new Set();
+    const nextTracks = [];
+
+    cleanDets.forEach(det => {
+        let bestIndex = -1;
+        let bestMatchScore = -Infinity;
+        let bestIoU = 0;
+
+        videoStableTracks.forEach((track, index) => {
+            if (usedTrackIndexes.has(index)) return;
+            if (String(track.code || "") !== String(det.code || "")) return;
+
+            const iou = boxIoU(track.box, det.box);
+            const distance = boxCenterDistance(track.box, det.box);
+            const normalizer = Math.max(boxDiagonal(track.box), boxDiagonal(det.box));
+            const normalizedDistance = distance / normalizer;
+
+            // Không ghép hai box cùng class nhưng cách nhau quá xa.
+            if (iou < VIDEO_TRACK_IOU && normalizedDistance > VIDEO_TRACK_CENTER_GATE) return;
+
+            const matchScore = iou - normalizedDistance * 0.20;
+            if (matchScore > bestMatchScore) {
+                bestMatchScore = matchScore;
+                bestIndex = index;
+                bestIoU = iou;
+            }
+        });
+
+        if (bestIndex >= 0) {
+            const oldTrack = videoStableTracks[bestIndex];
+            usedTrackIndexes.add(bestIndex);
+
+            // Track ổn định dùng alpha nhỏ để giảm rung. Nếu biển dịch chuyển nhanh,
+            // tăng nhẹ alpha để box vẫn bám theo vị trí mới thay vì bị trễ quá lâu.
+            const adaptiveAlpha = bestIoU >= 0.55
+                ? VIDEO_TRACK_ALPHA
+                : 0.82;
+
+            nextTracks.push({
+                ...det,
+                box: smoothBox(oldTrack.box, det.box, adaptiveAlpha),
+                conf: Number(det.conf || 0) * 0.65 + Number(oldTrack.conf || 0) * 0.35,
+                missing: 0,
+                age: (oldTrack.age || 0) + 1
+            });
+        } else {
+            nextTracks.push({
+                ...det,
+                box: det.box.map(Number),
+                missing: 0,
+                age: 1
+            });
+        }
+    });
+
+    // Track cũ chỉ giữ để ghép ở nhịp kế tiếp; không đưa ra màn hình khi missing > 0.
+    videoStableTracks.forEach((track, index) => {
+        if (usedTrackIndexes.has(index)) return;
+        const nextMissing = (track.missing || 0) + 1;
+        if (nextMissing <= VIDEO_TRACK_TTL) {
+            nextTracks.push({
+                ...track,
+                missing: nextMissing,
+                conf: Number(track.conf || 0) * 0.80
+            });
+        }
+    });
+
+    videoStableTracks = nextTracks
+        .sort((a, b) => Number(b.conf || 0) - Number(a.conf || 0))
+        .slice(0, 12);
+
+    return videoStableTracks
+        .filter(track =>
+            (track.age || 0) >= VIDEO_MIN_AGE_TO_SHOW ||
+            Number(track.conf || 0) >= VIDEO_SPEAK_IMMEDIATE_CONF
+        )
+        .filter(track => (track.missing || 0) === 0)
+        .map(track => ({
+            ...track,
+            box: track.box.map(value => Math.round(value))
+        }));
+}
+
+function onVideoFileSelected(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    stopVideoAI();
+    resetVideoTracks();
+    videoAnnouncedSigns = {};
+    latestVideoSpeechDetections = [];
+    videoSpeechBusy = false;
+
+    const formData = new FormData();
+    formData.append("video", file);
+
+    document.getElementById("selected-file-info").style.display = "block";
+    document.getElementById("selected-file-info").innerHTML =
+        `<strong>Đã chọn:</strong> ${escapeHTML(file.name)}. Đang tải lên...`;
+
+    fetch("/upload_video", { method: "POST", body: formData })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById("video-current-result").innerText = data.error;
+                return;
+            }
+
+            videoPlaceholder.style.display = "none";
+            vidPlayer.src = data.url;
+            vidPlayer.muted = true;
+            vidPlayer.load();
+
+            document.getElementById("selected-file-info").innerHTML =
+                `<strong>Video:</strong> ${escapeHTML(file.name)}`;
+
+            document.getElementById("video-current-result").innerText =
+                "Video đã sẵn sàng. Bấm phát để bắt đầu nhận diện.";
+
+            const muteBtn = document.getElementById("btn-mute-original-video");
+            if (muteBtn) {
+                muteBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> Video gốc: Tắt tiếng';
+            }
+
+            announcedSigns = {};
+            signBuffer = {};
+            clearHistory("video-timeline-log");
+            resetVideoTracks();
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("video-current-result").innerText = "Lỗi tải video lên server.";
+        });
+
+    event.target.value = "";
+}
+
+function playVideoWithAI() {
+    if (!vidPlayer.src) {
+        document.getElementById("video-current-result").innerText = "Vui lòng chọn video trước.";
+        return;
+    }
+
+    // Nếu đang ở đầu video thì reset track để khung không giữ dữ liệu cũ.
+    if ((vidPlayer.currentTime || 0) < 0.3 || vidPlayer.ended) {
+        resetVideoTracks();
+    }
+
+    videoAIStartTime = vidPlayer.currentTime || 0;
+    videoLoopActive = true;
+    isVideoProcessing = false;
+
+    vidPlayer.play();
+
+    document.getElementById("video-current-result").innerText =
+        "Đang phát video và nhận diện biển báo...";
+}
+
+function pauseVideoAI() {
+    videoLoopActive = false;
+    isVideoProcessing = false;
+    videoRequestSerial++;
+
+    vidPlayer.pause();
+    videoSpeechGeneration++;
+    speechSynthesis.cancel();
+    latestVideoSpeechDetections = [];
+    videoSpeechBusy = false;
+
+    document.getElementById("video-current-result").innerText =
+        "Đã tạm dừng video và tạm dừng AI nhận diện.";
+}
+
+function stopVideoAI() {
+    videoLoopActive = false;
+    isVideoProcessing = false;
+    videoRequestSerial++;
+
+    if (vidPlayer) {
+        vidPlayer.pause();
+
+        try {
+            vidPlayer.currentTime = 0;
+        } catch (e) {
+            console.log("Không thể tua video về đầu:", e);
+        }
+    }
+
+    ctxVideoOverlay.clearRect(0, 0, videoOverlay.width, videoOverlay.height);
+    videoSpeechGeneration++;
+    speechSynthesis.cancel();
+
+    document.getElementById("video-current-result").innerText =
+        "Đã dừng video và dừng AI nhận diện.";
+
+    document.getElementById("video-detections-list").innerHTML = "";
+    document.getElementById("video-count-badge").innerText = "0 biển";
+
+    announcedSigns = {};
+    signBuffer = {};
+    videoAnnouncedSigns = {};
+    latestVideoSpeechDetections = [];
+    latestVideoSpeechTime = 0;
+    videoSpeechBusy = false;
+    resetVideoTracks();
+}
+
+function toggleOriginalVideoSound() {
+    vidPlayer.muted = !vidPlayer.muted;
+
+    const btn = document.getElementById("btn-mute-original-video");
+
+    if (vidPlayer.muted) {
+        btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> Video gốc: Tắt tiếng';
+    } else {
+        btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> Video gốc: Bật tiếng';
+    }
+}
+
+vidPlayer.addEventListener("play", () => {
+    if (!vidPlayer.src) return;
+
+    if (!videoLoopActive) {
+        videoAIStartTime = vidPlayer.currentTime || 0;
+    }
+
+    videoLoopActive = true;
+    isVideoProcessing = false;
+
+    scheduleVideoFrame();
+});
+
+vidPlayer.addEventListener("pause", () => {
+    videoLoopActive = false;
+    isVideoProcessing = false;
+    videoRequestSerial++;
+    latestVideoSpeechDetections = [];
+    videoSpeechBusy = false;
+    videoSpeechGeneration++;
+    speechSynthesis.cancel();
+});
+
+vidPlayer.addEventListener("seeked", () => {
+    // Khi tua video, reset track để box không dính vị trí cũ.
+    resetVideoTracks();
+    ctxVideoOverlay.clearRect(0, 0, videoOverlay.width, videoOverlay.height);
+});
+
+vidPlayer.addEventListener("ended", () => {
+    videoLoopActive = false;
+    isVideoProcessing = false;
+    videoRequestSerial++;
+    resetVideoTracks();
+
+    ctxVideoOverlay.clearRect(0, 0, videoOverlay.width, videoOverlay.height);
+    document.getElementById("video-current-result").innerText = "Đã kết thúc video.";
+});
+
+function scheduleVideoFrame() {
+    if (!videoLoopActive || vidPlayer.paused || vidPlayer.ended) return;
+
+    const maxSeconds = getVideoMaxSeconds();
+    const analyzedSeconds = vidPlayer.currentTime - videoAIStartTime;
+
+    if (maxSeconds > 0 && analyzedSeconds >= maxSeconds) {
+        pauseVideoAI();
+        document.getElementById("video-current-result").innerText =
+            `AI đã tạm dừng vì đạt giới hạn ${maxSeconds} giây phân tích. Bạn có thể bấm Phát video để chạy tiếp.`;
+        return;
+    }
+
+    if (isVideoProcessing) {
+        setTimeout(scheduleVideoFrame, 150);
+        return;
+    }
+
+    processVideoFrame();
+}
+
+function processVideoFrame() {
+    if (!videoLoopActive || vidPlayer.paused || vidPlayer.ended) return;
+
+    if (!vidPlayer.videoWidth || !vidPlayer.videoHeight) {
+        setTimeout(scheduleVideoFrame, 200);
+        return;
+    }
+
+    isVideoProcessing = true;
+
+    // Không cần gửi nguyên video 1080p/2K về Flask vì YOLO phía server
+    // sẽ resize về imgsz=512. Resize trước giúp giảm base64, decode và độ trễ.
+    const processScale = Math.min(
+        1,
+        VIDEO_PROCESS_MAX_SIDE / Math.max(vidPlayer.videoWidth, vidPlayer.videoHeight)
+    );
+    videoHiddenCanvas.width = Math.max(1, Math.round(vidPlayer.videoWidth * processScale));
+    videoHiddenCanvas.height = Math.max(1, Math.round(vidPlayer.videoHeight * processScale));
+
+    ctxVideoHidden.drawImage(
+        vidPlayer,
+        0,
+        0,
+        videoHiddenCanvas.width,
+        videoHiddenCanvas.height
+    );
+
+    const capturedTime = vidPlayer.currentTime;
+    const dataURL = videoHiddenCanvas.toDataURL("image/jpeg", VIDEO_JPEG_QUALITY);
+    const requestId = ++videoRequestSerial;
+
+    fetch("/detect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            image: dataURL,
+            conf: parseFloat(document.getElementById("video-conf-slider").value),
+            vehicle_type: document.getElementById("video-vehicle-type").value,
+            source_type: "video",
+            imgsz: 512
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!videoLoopActive || requestId !== videoRequestSerial) {
+            return;
+        }
+
+        videoOverlay.width = vidPlayer.clientWidth;
+        videoOverlay.height = vidPlayer.clientHeight;
+        ctxVideoOverlay.clearRect(0, 0, videoOverlay.width, videoOverlay.height);
+
+        const resultLag = Math.max(0, (vidPlayer.currentTime || 0) - capturedTime);
+
+        // Kết quả inference thuộc frame quá cũ sẽ bị bỏ, tránh vẽ box lên vị trí
+        // mà biển báo đã đi qua trong video.
+        if (resultLag > VIDEO_MAX_RESULT_LAG) {
+            resetVideoTracks();
+            ctxVideoOverlay.clearRect(0, 0, videoOverlay.width, videoOverlay.height);
+            return;
+        }
+
+        const detections = data.detections || [];
+        const visibleDetections = updateVideoStableDetections(detections);
+        const rect = getVideoDisplayRect(
+            vidPlayer,
+            videoOverlay,
+            videoHiddenCanvas.width,
+            videoHiddenCanvas.height
+        );
+
+        drawDetections(
+            ctxVideoOverlay,
+            visibleDetections,
+            rect.scaleX,
+            rect.scaleY,
+            rect.offsetX,
+            rect.offsetY
+        );
+
+        processResult({
+            ...data,
+            detections: visibleDetections
+        }, true, capturedTime);
+    })
+    .catch(err => {
+        console.error(err);
+    })
+    .finally(() => {
+        isVideoProcessing = false;
+
+        if (videoLoopActive && !vidPlayer.paused && !vidPlayer.ended) {
+            // Phân tích nhịp tiếp theo sau khi request hiện tại hoàn tất.
+            setTimeout(scheduleVideoFrame, VIDEO_NEXT_FRAME_DELAY_MS);
+        }
+    });
+}
+
+</script>
+</body>
+</html>

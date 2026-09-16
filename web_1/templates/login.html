@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Trợ lý biển báo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+
+        :root {
+            --bg: #eef4fb;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #6b7280;
+            --line: #dbe3ef;
+            --field: #f8fafc;
+            --blue: #2563eb;
+            --blue-dark: #1d4ed8;
+            --tab-bg: #f1f5f9;
+            --danger: #dc2626;
+            --danger-bg: #fff1f2;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body { min-height: 100%; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            font-family: "Baloo 2", Inter, Arial, sans-serif;
+            background:
+                radial-gradient(circle at 50% 8%, rgba(219,234,254,.85), transparent 26%),
+                var(--bg);
+            color: var(--text);
+        }
+
+        .auth-page {
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(24px, 5vh, 56px) 18px;
+        }
+
+        .auth-shell {
+            width: min(100%, 760px);
+            margin: auto;
+        }
+
+        .brand-block {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-circle {
+            width: 82px;
+            height: 82px;
+            margin: 0 auto 14px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: #dbeafe;
+            box-shadow: inset 0 0 0 1px rgba(37,99,235,.04);
+            font-size: 42px;
+        }
+
+        .brand-title {
+            margin: 0;
+            font-size: clamp(34px, 5vw, 48px);
+            line-height: 1.05;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            color: #0f172a;
+        }
+
+        .brand-subtitle {
+            margin: 9px 0 0;
+            color: var(--muted);
+            font-size: clamp(16px, 2.2vw, 20px);
+            line-height: 1.45;
+            font-weight: 500;
+        }
+
+        .auth-card {
+            width: min(100%, 690px);
+            margin: 0 auto;
+            background: var(--card);
+            border: 1px solid rgba(203,213,225,.72);
+            border-radius: 30px;
+            padding: clamp(22px, 4vw, 36px);
+            box-shadow: 0 16px 38px rgba(30,58,138,.11);
+        }
+
+        .auth-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            background: var(--tab-bg);
+            padding: 5px;
+            border-radius: 18px;
+            margin-bottom: 26px;
+        }
+
+        .auth-tab {
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: clamp(18px, 2.5vw, 23px);
+            font-weight: 800;
+            transition: .18s ease;
+        }
+
+        .auth-tab:hover { color: var(--blue); }
+
+        .auth-tab.active {
+            color: #fff;
+            background: linear-gradient(135deg, #2f6eea, var(--blue-dark));
+            box-shadow: 0 8px 18px rgba(37,99,235,.20);
+        }
+
+        .field-group { margin-bottom: 18px; }
+
+        .field-label {
+            display: block;
+            margin: 0 0 8px;
+            color: #374151;
+            font-size: clamp(17px, 2.2vw, 21px);
+            font-weight: 800;
+        }
+
+        .field-wrap { position: relative; }
+
+        .auth-input {
+            width: 100%;
+            height: 62px;
+            border: 1px solid var(--line);
+            border-radius: 17px;
+            background: var(--field);
+            padding: 0 18px;
+            outline: none;
+            font: inherit;
+            font-size: 18px;
+            color: var(--text);
+            transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+        }
+
+        .auth-input.password-input { padding-right: 54px; }
+
+        .auth-input::placeholder { color: #9ca3af; }
+
+        .auth-input:focus {
+            background: #fff;
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 4px rgba(37,99,235,.10);
+        }
+
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border: 0;
+            border-radius: 11px;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .password-toggle:hover { background: #eef2f7; }
+
+        .flash-message,
+        .client-error {
+            margin: 0 0 18px;
+            padding: 12px 14px;
+            border-radius: 13px;
+            border: 1px solid #fecdd3;
+            background: var(--danger-bg);
+            color: #be123c;
+            font-family: Inter, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        .client-error { display: none; }
+
+        .submit-button {
+            width: 100%;
+            min-height: 62px;
+            margin-top: 5px;
+            border: 0;
+            border-radius: 17px;
+            background: linear-gradient(135deg, #2f6eea, var(--blue-dark));
+            color: #fff;
+            font: inherit;
+            font-size: clamp(20px, 2.7vw, 24px);
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(37,99,235,.18);
+            transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 13px 26px rgba(37,99,235,.23);
+        }
+
+        .submit-button:active { transform: translateY(0); }
+
+        .switch-hint {
+            margin: 16px 0 0;
+            text-align: center;
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.45;
+        }
+
+        .switch-hint a {
+            color: var(--blue);
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .switch-hint a:hover { text-decoration: underline; }
+
+        .backend-note {
+            margin: 22px 0 0;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            font-family: Inter, Arial, sans-serif;
+        }
+
+        @media (max-width: 640px) {
+            .auth-page { align-items: flex-start; padding: 28px 14px 34px; }
+            .logo-circle { width: 70px; height: 70px; font-size: 36px; }
+            .brand-block { margin-bottom: 20px; }
+            .auth-card { border-radius: 24px; padding: 20px 17px 24px; }
+            .auth-tab { min-height: 52px; }
+            .auth-input { height: 56px; font-size: 16px; }
+            .submit-button { min-height: 56px; }
+        }
+
+        @media (max-height: 720px) and (min-width: 641px) {
+            .auth-page { align-items: flex-start; padding-top: 24px; padding-bottom: 24px; }
+            .logo-circle { width: 64px; height: 64px; font-size: 34px; margin-bottom: 10px; }
+            .brand-title { font-size: 34px; }
+            .brand-subtitle { margin-top: 4px; font-size: 16px; }
+            .brand-block { margin-bottom: 16px; }
+            .auth-card { padding-top: 24px; padding-bottom: 24px; }
+            .auth-tabs { margin-bottom: 18px; }
+        }
+
+    </style>
+</head>
+<body>
+    <main class="auth-page">
+        <section class="auth-shell" aria-label="Đăng nhập hệ thống">
+            <div class="brand-block">
+                <div class="logo-circle" aria-hidden="true">🚦</div>
+                <h1 class="brand-title">Trợ lý biển báo</h1>
+                <p class="brand-subtitle">Nhận diện biển báo và tra cứu luật giao thông</p>
+            </div>
+
+            <div class="auth-card">
+                <nav class="auth-tabs" aria-label="Chọn hình thức xác thực">
+                    <a class="auth-tab active" href="{{ url_for('login') }}" aria-current="page">Đăng nhập</a>
+                    <a class="auth-tab" href="{{ url_for('register') }}">Đăng ký</a>
+                </nav>
+
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="flash-message" role="alert">⚠️ {{ messages[0] }}</div>
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" autocomplete="on">
+                    <div class="field-group">
+                        <label class="field-label" for="username">Tên đăng nhập</label>
+                        <input
+                            class="auth-input"
+                            id="username"
+                            type="text"
+                            name="username"
+                            placeholder="Ví dụ: thao22070003"
+                            autocomplete="username"
+                            autocapitalize="none"
+                            required
+                            autofocus
+                        >
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" for="password">Mật khẩu</label>
+                        <div class="field-wrap">
+                            <input
+                                class="auth-input password-input"
+                                id="password"
+                                type="password"
+                                name="password"
+                                placeholder="Tối thiểu 6 ký tự"
+                                autocomplete="current-password"
+                                minlength="6"
+                                required
+                            >
+                            <button class="password-toggle" type="button" onclick="togglePassword('password', this)" aria-label="Hiện mật khẩu">👁</button>
+                        </div>
+                    </div>
+
+                    <button class="submit-button" type="submit">Đăng nhập</button>
+                </form>
+
+                <p class="switch-hint">Chưa có tài khoản? <a href="{{ url_for('register') }}">Chọn tab Đăng ký.</a></p>
+            </div>
+
+            <p class="backend-note">Trợ lý ảo nhận diện và hỗ trợ tra cứu biển báo giao thông</p>
+        </section>
+    </main>
+
+    <script>
+        function togglePassword(id, button) {
+            const input = document.getElementById(id);
+            const show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            button.textContent = show ? '🙈' : '👁';
+            button.setAttribute('aria-label', show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+        }
+    </script>
+</body>
+</html>
